@@ -180,6 +180,7 @@ function page(pageNav: string, navGroups: string, main: string): string {
 <title>Component Catalog</title>
 <link rel="stylesheet" href="/styles/variables.css">
 <link rel="stylesheet" href="/styles/global.css">
+<link rel="stylesheet" href="/styles/grain.css">
 <link rel="stylesheet" href="/components.css">
 <style>
   body { margin: 0; }
