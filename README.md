@@ -1,15 +1,20 @@
-# BATCH — POC
+# BATCH — the substrate
 
-Minimal Items app built on the reference architecture (`../ARCHITECTURE.md`).
-In-memory storage, no build step, server-rendered HTML fragments + JSON API,
-htmx for interactivity.
+**B**un · **A**ddressable · **T**ypeScript · **C**SS · **H**tmx — a no-build, server-rendered
+hypermedia substrate. This directory is BATCH itself plus a minimal Items app that proves it out
+(in-memory storage, server-rendered HTML fragments + JSON API, htmx for interactivity).
+
+**GRAIN** (the design system) and **MILL** (the CMS) build on top of BATCH; the product and the
+portfolio consume the whole stack. → the *why*: [`../PHILOSOPHY.md`](../PHILOSOPHY.md) · the full
+reasoning (SSOT): [`../ARCHITECTURE.md`](../ARCHITECTURE.md) · the build rules:
+[`../CONVENTIONS.md`](../CONVENTIONS.md).
 
 ## Run
 
 ```sh
 bun install            # or: npm install (bun came in via npm here)
 bun run dev            # http://localhost:3000  (hot reload)
-bun test               # 10 tests
+bun test               # unit + integration (29 tests)
 bun run check          # tsc, erasable-only
 ```
 

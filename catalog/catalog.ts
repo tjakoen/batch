@@ -6,6 +6,7 @@
 // search filter. Dependency-free: a tiny line parser, no markdown library, no CDN.
 import { readdirSync } from "fs";
 import { join } from "path";
+import type { Runtime } from "../platform/runtime.ts";
 
 interface Panel { label: string; code: string; }
 interface Group { label: string; panels: Panel[]; }
@@ -13,7 +14,9 @@ interface Doc { name: string; slug: string; intro: string; groups: Group[]; }
 interface Component { layer: string; slug: string; name: string; human: Doc; ai: Doc | null; }
 
 const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+// escapes quotes too: esc() is interpolated into ATTRIBUTE contexts (e.g. data-name="…"),
+// not just text, so a component name / route containing " must not be able to break out.
+const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 // minimal inline markdown for prose: `code`, **bold**, *italic*, [text](url).
@@ -60,7 +63,7 @@ function parseDoc(md: string): Doc {
 
 interface Sitemap { routes(): string[]; }
 
-export function createCatalog(componentsDir: string | string[], sitemap?: Sitemap) {
+export function createCatalog(rt: Runtime, componentsDir: string | string[], sitemap?: Sitemap) {
   let cache: string | null = null;
   let comps: Component[] | null = null;
 
@@ -95,8 +98,8 @@ export function createCatalog(componentsDir: string | string[], sitemap?: Sitema
       }
       for (const slot of byBase.values()) {
         if (!slot.human) continue;   // a component must have a human doc as its base
-        const human = parseDoc(await Bun.file(slot.human).text());
-        const ai = slot.ai ? parseDoc(await Bun.file(slot.ai).text()) : null;
+        const human = parseDoc(await rt.readFile(slot.human));
+        const ai = slot.ai ? parseDoc(await rt.readFile(slot.ai)) : null;
         comps.push({ layer, slug: human.slug, name: human.name, human, ai });
       }
     }

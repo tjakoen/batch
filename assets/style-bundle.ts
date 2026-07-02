@@ -2,8 +2,9 @@
 // .css into one cached bundle. No build step: read once, cache, refresh on change.
 import { readdirSync } from "fs";
 import { join } from "path";
+import type { Runtime } from "../platform/runtime.ts";
 
-export function createStyleBundle(componentsDir: string | string[]) {
+export function createStyleBundle(rt: Runtime, componentsDir: string | string[]) {
   let cache: string | null = null;
 
   function collect(dir: string, out: string[]) {
@@ -20,7 +21,7 @@ export function createStyleBundle(componentsDir: string | string[]) {
     for (const root of ([] as string[]).concat(componentsDir)) collect(root, files);   // one or many roots
     files.sort();   // deterministic order across hosts
     const parts = await Promise.all(files.map(f =>
-      Bun.file(f).text().then(s => `/* ${f} */\n${s}`)));
+      rt.readFile(f).then(s => `/* ${f} */\n${s}`)));
     cache = parts.join("\n");
     return cache;
   }

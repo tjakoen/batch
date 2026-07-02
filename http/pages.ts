@@ -7,7 +7,7 @@
 //     /home/x.js        → pages/home/x.js          (co-located asset, served as-is)
 //
 // A page's .html is run through the composition engine (renderPage) so pages can
-// COMPOSE atomic component tags (<b-button>, <app-header>, …) instead of raw markup.
+// COMPOSE atomic component tags (<b-button>, <app-frame>, …) instead of raw markup.
 import { extname, join } from "path";
 import type { Runtime } from "../platform/runtime.ts";
 import { makeStatic } from "./static.ts";
