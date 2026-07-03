@@ -42,6 +42,12 @@ export function createStream(): Stream {
         set.add(controller);
         sessions.set(sessionId, set);
         controller.enqueue(enc.encode(`: connected\n\n`));   // comment frame: opens the stream
+        // Handshake: a real event emitted AFTER this subscriber is in the set. The client's native
+        // `open` fires on response headers, which can arrive BEFORE this `start` runs — so a client
+        // that posts an intent on `open` can have the first pushed events dropped (no subscriber
+        // yet). Waiting for `ready` guarantees the reply channel is live. Transport-level, not app
+        // vocabulary — the app still pushes its own event names on top.
+        controller.enqueue(frame("ready", { t: 0 }));
       },
       cancel() {
         const set = sessions.get(sessionId);
