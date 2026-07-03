@@ -9,7 +9,7 @@ server-rendered hypermedia stack. Reusable design-system component tags use the
 (§14.1); the frontend layer — pages, component catalog, sitemap, the `b-` component
 set, self-closing/prop-text — added and audited 2026-06-27 (§14.4). The **AI
 interaction layer** (server-push over SSE, the one `/intent` door, render ops,
-grade-as-signal) and the **Bread** design-system retheme were added and
+grade-as-signal) and the **Sourdough** design-system retheme were added and
 audited 2026-06-30 (§17, §14.5), then the repo was **reorganized into a monorepo** the
 same day (§3). The code in `batch/ grain/ project/` is the source of truth.
 
@@ -34,6 +34,37 @@ entire backend was assembled exactly as specified and **certified**: `tsc`
 typechecks green under `erasableSyntaxOnly` + `verbatimModuleSyntax` (TS 6.0), the
 full test suite passes, and the server serves `/ui` (HTML) and `/api` (JSON)
 correctly. See §14.1 for the audit log.
+
+---
+
+## What BATCH gives you (capabilities)
+
+The capabilities, **tiered** — headliners first, then the useful-but-quieter ones. Nothing here is
+buried. **This list is the single source** (the README and the `/batch` landing page teaser it); add
+or drop a capability → update this list (`../../CLAUDE.md` alignment table → `AUDIT.md` check 11).
+
+**Hero — the reasons BATCH exists:**
+
+- **No build step.** Bun runs the TypeScript directly and the composition engine renders components
+  server-side — no bundler, no transpile step, no client framework, no template dialect between
+  source and server. It can even **serve `.ts` to the browser transpiled on request** (§19,
+  client-safe modules), so even client code has no build. Near-zero framework JS ships.
+- **Static export = a projection of the running server.** `bun run export` (§18) crawls the live
+  server and freezes it to static files — never a second renderer, so the export can't drift from the
+  app. Content pages export; operable `/intent`+SSE surfaces are inert by design.
+
+**Also — useful features, deliberately listed:**
+
+- **The composition engine** — a small binding vocabulary (`data-field`/`each`/`slot-tag`/props) that
+  turns component tags into HTML, zero third-party runtime deps (§2, §9).
+- **A generic SSE push hub** (`http/stream.ts`) — opaque-payload server push; satisfies GRAIN's
+  `OpChannel` port structurally without BATCH knowing anything about `RenderOp`s (§17).
+- **The component catalog** — a Storybook-style `/catalog` generated server-side from each
+  component's co-located `.md`; no build, no deps (§13a).
+- **Sitemap + SEO from one source** — one page list feeds `/catalog`, `/sitemap.xml`, `/robots.txt`
+  (§11.4).
+- **A framework-generic audit engine** — perf + SEO/AEO baselines via Playwright, vocabulary-agnostic
+  so it can bench any app/framework, not just this one (`batch/audit`).
 
 ---
 
@@ -1398,6 +1429,14 @@ document loads — rather than swapping `innerHTML` with a router — is what le
 platform animate transitions natively. htmx still drives *intra-page* updates
 (`/ui/*` fragment swaps); the browser drives *inter-page* transitions.
 
+Page transitions are one instance of a broader stance (CONVENTIONS §1): **prefer the
+platform's own primitive over a JS reimplementation.** Elsewhere in the stack that's
+`<dialog>` (modals, the ⌘K palette, the interrupt confirm — free focus-trap, `::backdrop`,
+top-layer), `<details>` (disclosures), native form constraint validation, plain `<a>` + CSS
+for tabs/nav, and CSS `:has()` / `:focus-within` / `color-mix()` / `@starting-style` for
+behavior and theming — so "near-zero framework JS" holds by construction. GRAIN's full running
+inventory is in `grain/docs/GRAIN.md` ("What GRAIN gives you").
+
 ---
 
 ## 12. Server — composition root (the only wiring)
@@ -1737,7 +1776,7 @@ pages expand `b-*` tags, archived button is inert, badge is single-class.
 
 ### 14.5 AI interaction layer + design-system audit (2026-06-30) — verified
 
-Added the AI interaction layer (§17), the Bread retheme, the catalog
+Added the AI interaction layer (§17), the Sourdough retheme, the catalog
 upgrades, and the global ⌘K palette. Full audit findings:
 
 | Area | Result |
@@ -1752,9 +1791,7 @@ upgrades, and the global ⌘K palette. Full audit findings:
 
 **Open items (deferred by design, not defects):** the reasoner is a **stub** behind
 the real `Model` seam; the **Gate** (triage → light/heavy routing) and **heavy-path**
-"thinking" UI are not yet wired (build-order step 3); the legacy `/home` direct-write
-is a back-door *pattern* kept only as a stack example (the product writes through the
-door, except category-1 docs); the ⌘K palette indexes pages + components (tasks/
+"thinking" UI are not yet wired (build-order step 3); the ⌘K palette indexes pages + components (tasks/
 knowledge and intent-emitting commands are seams); SSE has no auth (single-user;
 multi-device deferred with conflict-resolution, `docs/MVP.md`).
 
@@ -1940,8 +1977,8 @@ only the live previews, never the catalog's own chrome.
 
 `tsc` green (erasable, `verbatimModuleSyntax`); full suite passes; `/framework`
 still imports **nothing** from `/app` (the new `stream.ts`/`accepts.ts` are generic);
-all routes serve (`/`, `/home`, `/about`, `/loop`, `/catalog`, `/components.css`,
-`/ai/manifest`, `/search.json`, `/sitemap.xml`, `/robots.txt`, `/api/*`, `/ui/*`,
+all routes serve (`/`, `/about`, `/loop`, `/catalog`, `/components.css`,
+`/ai/manifest`, `/search.json`, `/sitemap.xml`, `/robots.txt`, `/ui/loop`,
 `/fonts/*`, `/scripts/*`); the `/intent` door returns 202 on a valid intent and 400
 on an unknown verb; SSE confirms/rolls-back land over `/stream`. See §14.5.
 
@@ -2003,6 +2040,116 @@ and writes `dist/`. It lives in **`batch/`** on purpose: crawl-sitemap→write-f
 substrate concern, so it must travel with the framework — then *any* BATCH site (the portfolio
 and its `/grain` showcase, and others later) gets Pages hosting from the one tool, per BATCH's
 extraction philosophy. No change to `batch/`/`grain/`/`project` runtime code — the export is an
-outside observer, so it can't regress the live path. Deferred until shareable static files are
-actually needed (§16 "deferred by design"). (See `portfolio/PLAN.md` piece 1, which drives the
-first real use.)
+outside observer, so it can't regress the live path. (See `portfolio/PLAN.md` piece 1, which drives
+the first real use.)
+
+### Status — Tier 1 shipped (2026-07-04)
+
+Built exactly as the audit is (§ generic-engine-in-batch): the framework-generic crawler+writer is
+**`batch/export/export.ts`** (`exportSite(config)` → `ExportReport`; imports only `node:fs`/`node:path`
++ global `fetch`, knows no vocabulary), and the app-specific **caller** is **`project/tools/export.ts`**
+(`bun run export`) — it spawns `project/server.ts`, derives the page allowlist from
+`createSitemap()` over **both** `config.pagesDir` and `config.portfolioPagesDir` (so `/grain`,
+`/batch`, `/mill` come along) plus `/catalog`, drops the operable set (`/loop`, `/dashboard`, and the
+retired `/home`), and passes `config.assetDirs` + `config.fontsDir` as asset mounts. The pure
+path/rewrite logic (the only branching) lives in `batch/export/rewrite.ts` with a colocated test.
+
+What Tier 1 does:
+
+- **Pages** → `dist/<route>/index.html` (pretty dirs); **generated data routes** (`/components.css`,
+  `/search.json`, `/sitemap.xml`, `/robots.txt`) → written at their literal path; **assets** copied
+  verbatim (binaries byte-for-byte; `*.test.*` skipped).
+- **The absolute-path/subpath problem** is solved by rewriting every root-absolute ref
+  (`href`/`src`/`action`, CSS `url()`, JS `import`/`fetch` specifiers, JSON `"url"` fields) to a
+  caller-supplied **`PUBLIC_BASE_PATH`** — the "rewrite absolute→relative" option above (kept
+  absolute-under-a-prefix, which is what a subpath host needs; `<base>` can't help because absolute
+  URLs ignore it). `PUBLIC_ORIGIN` swaps the crawl origin (`localhost`) into `sitemap.xml`/`robots.txt`;
+  if unset, the export warns rather than baking in `localhost` silently. Default (no base path) targets
+  a **root** host.
+- **The exportable boundary is enforced, not just documented.** After writing, the engine scans every
+  exported page for internal links that resolve to nothing it wrote and **warns, listing them** — so
+  operable surfaces excluded by the caller (`/dashboard`, `/intent`, `/ai/manifest`) surface as a
+  confirmable list instead of shipping as silent dead links. (It also caught a pre-existing broken
+  doc-example image, `/screenshots/loop-desk.png` in `figure.md`.)
+
+Known Tier-1 limitations (honest): `sitemap.xml` still lists operable routes (`/dashboard`, `/loop`)
+the static site doesn't include — it's the server's sitemap frozen as-is (projection, not re-render);
+and runtime-constructed URLs in JS (string concat) aren't base-path rewritten. **Tier 2** (true
+prerender of `hx-trigger="load"` targets) remains deferred — build only when a data-backed page must
+be genuinely static.
+
+---
+
+## 19. No-build client modules & the client-side runtime (opt-in — foreshadowed in §0.5)
+
+### 19.1 The primitive — "the server is the build step", now for the browser too
+
+Bun already runs the stack's TypeScript **on the server** with no build step — transpile-on-*execute*.
+§0.5's premise ("the server is the no-build step") had one asymmetry: the browser still got
+hand-written `.js` islands, because a browser can't run `.ts`. **`batch/http/modules.ts`
+(`makeModuleServer`) closes that gap: it serves any `.ts` module to the browser transpiled on
+*request*.** `GET /modules/grain/ai/contract.ts` → browser-ready JS. Relative imports inside a module
+resolve by URL and are transpiled the same way, recursively — no import rewriting, because source
+uses explicit `.ts` extensions under `verbatimModuleSyntax`. It is ephemeral (no bundler, no artifact,
+no dependency graph on disk), which is why it is *not* a build step in the sense §0.5 forbids — it is
+the same transpile-on-demand philosophy, now symmetric across server and client.
+
+This is feasible **only because the stack is zero-runtime-dep** (§ non-negotiables): there is no
+`node_modules` graph to resolve, so `Bun.Transpiler` (a builtin) is the entire toolchain.
+
+The immediate, non-speculative win: today the islands can't import the real vocabulary, so they
+**re-declare verbs as string literals** kept honest only by the boot-time drift-guard warning
+(`server.ts`). With client modules, an island imports the real `contract.ts` — **one source of truth
+reaches the browser, the drift-guard workaround retires.** (Proven end-to-end: a browser imports the
+live `contract.ts` and reads `ACTIONS` with no build.)
+
+### 19.2 THE CLIENT-SAFE BOUNDARY (communicate this — it is the whole safety story)
+
+Serving code to the browser means the browser *runs* it and anyone can *read* it. A module is safe to
+ship through `/modules` **only if all three hold.** This boundary is load-bearing and must be stated
+wherever client-side mode is offered (docs, page UI, the tool that flags a module):
+
+1. **No server-only imports** — no `node:*`, `bun`, `fs`, `path`, no third-party. **Enforced
+   mechanically:** `makeModuleServer` scans imports (`findServerOnlyImports`) and, on any bare
+   (non-relative) specifier, refuses the module — replacing it with a throwing stub whose message
+   names the offending import, so the failure is **loud in the browser console, never silent**.
+2. **No secrets** — API tokens, keys, credentials. **Not auto-detectable**; the developer's
+   responsibility. Keep secrets in server-only modules + env, never in anything reachable from a
+   `/modules` root. Treat every client module's full source as public.
+3. **No server-required behavior** — real persistence, multi-user authority, live external APIs. If
+   the logic needs a server, its client-side form is a **demo/replay, not the real thing.**
+
+**In one line: `/modules` and the client-side runtime are for static-style pages and self-contained
+logic. Anything that needs a server or holds sensitive data stays server-side.** This is exactly the
+same boundary §18 draws for the static export — client modules just move the line for *logic* the way
+export moves it for *pages*.
+
+### 19.3 The client-side runtime (the door, in the browser) — opt-in, planned
+
+The door is already port-shaped: `createInteractionLayer({ reasoner, stream, service… })` pushes
+`RenderOp`s to an **`OpChannel`** port (batch's SSE hub satisfies it structurally, §17). So running
+the door **in the browser** is a *wiring* change, not a rewrite:
+
+- Replace the SSE `OpChannel` with an **in-process (loopback) channel** that hands ops straight to the
+  dispatcher's `applyOp`.
+- Replace `POST /intent` with a **direct call** to the in-browser door.
+- Run the reasoner (the stub, or an in-browser small model — see the lightweight-model track) and the
+  service (ephemeral / `localStorage`) client-side.
+
+The result, for a static host like the portfolio: **a human and an AI operate the same closed
+vocabulary through the same door, applied by the same dispatcher, with no backend** — the thesis, made
+hostable. It stays **opt-in** because it ships framework JS (the door + reasoner + registry), which
+trades against the native-first byte budget (§0.5) — right for a showcase surface, wrong for content
+pages. Selecting server-door vs client-door is a **composition-root** choice (`project/server.ts`);
+`batch` only provides the mechanism (the module server + a generic loopback channel), knowing nothing
+of the door or the vocabulary.
+
+**Layering:** the module server + loopback channel are `batch` (substrate, vocabulary-agnostic); the
+client-door wiring is `grain/ai/*` (it knows the door); the mode switch + which reasoner/state/surfaces
+is `project`/`portfolio`. Static export (§18) freezes the transpiled modules into `dist/` (transpile-
+at-export), so an operable-static showcase ships as plain files.
+
+**Status:** §19.1–19.2 (the module server + client-safe guard) **built + tested (2026-07-04)**. §19.3
+(the client-side door) is **designed, not built** — it lands after the GRAIN interaction layer
+stabilizes (ROADMAP Track B.6 / A). Nothing in the live server path changes until a composition root
+opts in.
