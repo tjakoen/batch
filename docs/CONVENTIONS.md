@@ -49,6 +49,18 @@ product from the outside, it isn't part of it). The bar to defend is the `depend
 `package.json`: keep third-party *runtime* deps at zero (today only `bun` itself). A dev tool
 importing playwright, or the substrate importing `fs`, is the stack working as intended.
 
+**Native-first is a *positive* rule, not just an absence of framework JS.** It means: **prefer the
+platform's own primitive over reimplementing it.** A `<dialog>` over a JS modal; `<details>` over a
+JS accordion; the **View Transitions API** over a JS page-animation lib; **plain `<a>` + CSS** over a
+JS tab/router; **native constraint validation** over JS form validators; the **Popover API** and
+**CSS anchor positioning** over a floating-UI library; **`:has()`** / **`:focus-within`** /
+**`color-mix()`** / **`@starting-style`** / **container queries** / scroll-driven animations over
+style-computing JS. The test when reaching for JS: *does a browser primitive already do this?* If
+yes, use it; only write JS when none does (in this stack the sole such case is the `/intent`
+dispatcher). GRAIN's running inventory of which primitives are in use is in
+[`grain/docs/GRAIN.md`](../../grain/docs/GRAIN.md) ("What GRAIN gives you"); page transitions are
+worked in [ARCHITECTURE §11.3](../docs/ARCHITECTURE.md).
+
 ---
 
 ## 2. TypeScript

@@ -4,20 +4,29 @@
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache_2.0-blue)](LICENSE)
 
 **B**un · **A**ddressable · **T**ypeScript · **C**SS · **H**tmx — a no-build, server-rendered
-hypermedia substrate. This directory is BATCH itself plus a minimal Items app that proves it out
-(in-memory storage, server-rendered HTML fragments + JSON API, htmx for interactivity).
+hypermedia substrate. This directory is BATCH itself: the composition engine, HTTP/asset helpers,
+the component catalog, and the audit engine. The minimal Items app that proves it out (in-memory
+storage, server-rendered HTML fragments + JSON API, htmx for interactivity) lives in
+[`../project/`](../project/) — the composition root that wires the stack together.
 
-**GRAIN** (the design system) and **MILL** (the CMS) build on top of BATCH; the product and the
-portfolio consume the whole stack. → the *why*: [`../portfolio/PHILOSOPHY.md`](../portfolio/PHILOSOPHY.md) · the full
+**GRAIN** (the design system) and **MILL** (the content engine) build on top of BATCH; the product
+and the portfolio consume the whole stack. → the *why*: [`../portfolio/PHILOSOPHY.md`](../portfolio/PHILOSOPHY.md) · the full
 reasoning (SSOT): [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · the build rules:
 [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md).
+
+**What BATCH gives you** (the full, tiered list is the source in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) §"What BATCH gives you"):
+
+- **Hero:** no build step (Bun runs the TS; even client `.ts` is transpiled on request, no bundler) ·
+  static export as a *projection* of the running server (never a second renderer).
+- **Also:** the composition engine (zero runtime deps) · a generic SSE push hub · the `/catalog`
+  component browser · sitemap/SEO from one source · a framework-generic perf + SEO/AEO audit engine.
 
 ## Run
 
 ```sh
 bun install            # or: npm install (bun came in via npm here)
 bun run dev            # http://localhost:3000  (hot reload)
-bun test               # unit + integration (29 tests)
+bun test               # unit + integration
 bun run check          # tsc, erasable-only
 ```
 
@@ -27,8 +36,8 @@ bun run check          # tsc, erasable-only
 
 ## What it shows
 
-- **One folder per component** — `frontend/components/<level>/<name>/<name>.{html,css}` (atoms → molecules → organisms), CSS co-located with its template.
-- **Flat-file pages** — `frontend/pages/home.html` → `/home`; folders only group subpages (`profile/index.html` + `profile/settings.html`). URL mirrors the tree. Minimal JS sits in a `<script>` after the UI.
+- **One folder per component** — `<components-root>/<level>/<name>/<name>.{html,css}` (atoms → molecules → organisms), CSS co-located with its template. The roots are wired by the consumer (`project/config.ts`; in this monorepo the components live in `grain/components`).
+- **Flat-file pages** — `<pages-root>/home.html` → `/home` (here: `project/pages`); folders only group subpages (`profile/index.html` + `profile/settings.html`). URL mirrors the tree. Minimal JS sits in a `<script>` after the UI.
 - **Pages compose components** — rendered through the engine (`renderPage`), so they use atomic tags. Forms are a native `<form>` built from `<b-input>` + `<b-button>` atoms — reusable, not one-off. Raw HTML belongs inside a component's own `.html`, never in a page.
 - **Sitemap + SEO** — `/catalog` sidebar lists Pages (site map) + Components; the same page list feeds `/sitemap.xml` and `/robots.txt`. Add a page → it appears in all three.
 - **Design system** in `frontend/styles` (`variables.css` tokens + `global.css` base); component CSS bundled into `/components.css` by the framework — no build step.

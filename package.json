@@ -1,10 +1,21 @@
 {
-  "//": "Placeholder for the future standalone repo (see ../SPLIT-PLAN.md). Not consumed yet — today the monorepo root package.json + relative imports are authoritative.",
+  "//": "Staged for the future standalone repo (see ../SPLIT-PLAN.md). Not consumed yet — today the monorepo root package.json + relative imports are authoritative. The exports/files maps below are live-ready so consumers can resolve batch's docs + modules from the installed package (e.g. import.meta.resolve('@tjakoen/batch/docs/ARCHITECTURE.md')), which is how the portfolio renders /batch/docs without copying files. Root '.' entry (the TS composition surface) is added at extraction.",
   "name": "@tjakoen/batch",
   "version": "0.1.0",
   "description": "BATCH — a no-build, server-rendered hypermedia substrate (Bun · Addressable · TypeScript · CSS · htmx).",
   "type": "module",
   "license": "Apache-2.0",
   "author": "Tjakoen Stolk <tjakoen.s@gmail.com> (https://tjakoen.github.io)",
-  "homepage": "https://tjakoen.github.io/batch"
+  "homepage": "https://tjakoen.github.io/batch",
+  "exports": {
+    "./docs/*": "./docs/*",
+    "./http/*": "./http/*",
+    "./render/*": "./render/*",
+    "./platform/*": "./platform/*",
+    "./export/*": "./export/*",
+    "./audit/*": "./audit/*",
+    "./catalog/*": "./catalog/*",
+    "./assets/*": "./assets/*"
+  },
+  "files": ["assets", "audit", "catalog", "docs", "export", "http", "platform", "render"]
 }
