@@ -69,7 +69,24 @@ importing playwright, or the substrate importing `fs`, is the stack working as i
 
 ---
 
-## 3. The action vocabulary (single source of truth)
+## 3. Vocabularies — single source of truth (NO magic strings)
+
+**The rule: no magic strings.** Any string referenced in more than one place is a *vocabulary* —
+define it **once** and reference the definition; never re-type the literal. Server/TS code uses a
+`const` or a **const registry** (union + object); a browser module that can't import TS uses a
+**single named-const block** at the top of the file (e.g. the theming attributes/values/control
+names in `grain/scripts/theme.js` — `ATTR`/`SCHEME`/`CTRL`/`KEY`). If you're typing the same string
+twice, that's the smell.
+
+The only literals allowed are the **cross-layer** ones a static file genuinely can't import — HTML
+attributes, CSS selectors, and browser JS. Those must still be (a) single-sourced on the JS side and
+(b) **validated at boot by a drift guard** in `server.ts` so a typo fails loudly, not silently. Two
+such guards exist today: the **action vocabulary** (harvested `data-action`/`data-accepts` checked
+against `ACTIONS`) and the **theming vocabulary** (theme flavors referenced in markup checked against
+the `[data-theme="…"]` blocks in `variables.css`). Add a guard whenever you add a cross-layer
+vocabulary.
+
+### The action vocabulary
 
 `grain/ai/contract.ts` is the SSOT for everything addressable/operable:
 
