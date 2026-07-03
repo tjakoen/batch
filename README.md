@@ -1,13 +1,16 @@
 # BATCH — the substrate
 
+[![Made with Claude](https://img.shields.io/badge/Made_with-Claude-D97757?logo=anthropic&logoColor=white)](https://tjakoen.github.io/notes/ten-times-zero)
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache_2.0-blue)](LICENSE)
+
 **B**un · **A**ddressable · **T**ypeScript · **C**SS · **H**tmx — a no-build, server-rendered
 hypermedia substrate. This directory is BATCH itself plus a minimal Items app that proves it out
 (in-memory storage, server-rendered HTML fragments + JSON API, htmx for interactivity).
 
 **GRAIN** (the design system) and **MILL** (the CMS) build on top of BATCH; the product and the
-portfolio consume the whole stack. → the *why*: [`../PHILOSOPHY.md`](../PHILOSOPHY.md) · the full
-reasoning (SSOT): [`../ARCHITECTURE.md`](../ARCHITECTURE.md) · the build rules:
-[`../CONVENTIONS.md`](../CONVENTIONS.md).
+portfolio consume the whole stack. → the *why*: [`../portfolio/PHILOSOPHY.md`](../portfolio/PHILOSOPHY.md) · the full
+reasoning (SSOT): [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · the build rules:
+[`docs/CONVENTIONS.md`](docs/CONVENTIONS.md).
 
 ## Run
 

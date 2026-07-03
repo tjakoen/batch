@@ -190,6 +190,9 @@ function page(pageNav: string, navGroups: string, main: string): string {
   .cat { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
   .cat-nav { position: sticky; top: 0; align-self: start; height: 100vh; overflow: auto;
     padding: var(--space-6) var(--space-4); border-right: 1px solid var(--color-line); }
+  .cat-back { display: inline-flex; align-items: center; margin-bottom: var(--space-4);
+    font-size: var(--text-sm); color: var(--color-muted); text-decoration: none; }
+  .cat-back:hover { color: var(--ink); text-decoration: underline; }
   .cat-nav h1 { font-size: var(--text-lg); margin: 0 0 var(--space-3); }
   .cat-search { width: 100%; box-sizing: border-box; margin-bottom: var(--space-4);
     padding: var(--space-1) var(--space-2); font-family: var(--font-smooth); font-size: var(--text-sm);
@@ -244,11 +247,55 @@ function page(pageNav: string, navGroups: string, main: string): string {
     font-size: var(--text-xs); padding: var(--space-1) var(--space-2); cursor: pointer;
     border: 1px solid var(--color-line); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-fg); }
   .panel__copy.copied { border-color: var(--ink); }
+
+  /* the nav toggle + close are wide-screen-hidden; the two-column layout needs neither */
+  .cat-navtoggle, .cat-nav__close { display: none; }
+
+  /* Narrow (e.g. embedded in a sidebar iframe, or a real phone): there's no room for a
+     persistent 240px menu, so the nav COLLAPSES by default and opens FULL-WIDTH over the
+     main — the small-screen drawer pattern. The narrow catalog-peek sidebar inherits this. */
+  @media (max-width: 640px) {
+    .cat { grid-template-columns: 1fr; }
+    .cat-navtoggle { display: inline-flex; align-items: center; position: sticky; top: 0; z-index: 30;
+      width: 100%; box-sizing: border-box; padding: var(--space-3) var(--space-4);
+      border: 0; border-bottom: 1px solid var(--color-line); background: var(--paper); color: var(--ink);
+      font-family: var(--font-smooth); font-size: var(--text-sm); text-transform: uppercase;
+      letter-spacing: 0.06em; cursor: pointer; }
+    .cat-nav { position: fixed; inset: 0; z-index: 40; width: 100%; height: 100dvh;
+      background: var(--paper);   /* opaque: a full-screen drawer OVER the main, not see-through */
+      transform: translateX(-100%); transition: transform 0.25s ease; overscroll-behavior: contain; }
+    .cat[data-nav="open"] .cat-nav { transform: none; }   /* full-screen takeover */
+    .cat-nav__close { display: inline-flex; align-items: center; background: transparent; border: 0;
+      padding: 0 0 var(--space-3); font-family: var(--font-smooth); font-size: var(--text-sm);
+      text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-muted); cursor: pointer; }
+    .cat-main { padding: var(--space-6); overscroll-behavior: contain; }
+  }
+  @media (prefers-reduced-motion: reduce) { .cat-nav { transition: none; } }
+
+  /* Peek "single" mode: a host that embeds the catalog as a one-at-a-time browser (e.g. the
+     /grain sidebar) sets data-peek-single on .cat and toggles .is-peek-active on ONE entry —
+     hovering a component elsewhere just swaps which entry shows. Only the active entry renders,
+     fading in; nothing scrolls across the long list (no far-scroll thrash). */
+  .cat[data-peek-single] .cat-doc { display: none; }
+  .cat[data-peek-single] .cat-doc.is-peek-active { display: block;
+    animation: cat-peek-fade 0.55s cubic-bezier(0.22, 1, 0.36, 1); }   /* gentle: slow, eased, slight rise */
+  @keyframes cat-peek-fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  /* single mode is host-driven (hover / Full page) — the host's own header names it, so hide the
+     catalog's redundant "☰ Catalog" toggle bar (no stacked double "Catalog"). */
+  .cat[data-peek-single] .cat-navtoggle { display: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .cat[data-peek-single] .cat-doc.is-peek-active { animation: none; }
+  }
 </style>
 </head>
 <body>
-  <div class="cat">
-    <aside class="cat-nav">
+  <div class="cat" data-nav="closed">
+    <button class="cat-navtoggle" type="button" aria-controls="cat-nav" aria-expanded="false">☰&nbsp;&nbsp;Catalog</button>
+    <aside class="cat-nav" id="cat-nav">
+      <!-- a clear way back (the component nav below isn't an obvious exit); hidden when embedded
+           in a peek sidebar iframe, where the host provides its own close/expand controls. -->
+      <a class="cat-back" href="/">←&nbsp;&nbsp;Back</a>
+      <button class="cat-nav__close" type="button" aria-label="Close menu">✕&nbsp;&nbsp;Close</button>
       <h1>Catalog</h1>
       <input class="cat-search" type="search" placeholder="Search components…" aria-label="Search components">
       <p class="cat-nav__heading">Pages</p>
@@ -280,6 +327,41 @@ function page(pageNav: string, navGroups: string, main: string): string {
       doc.setAttribute("data-grade", b.dataset.gradeSet);
       doc.querySelectorAll(".grade-toggle__btn").forEach((x) => x.classList.toggle("is-on", x === b));
     });
+
+    // Back button: hidden when embedded in a peek sidebar (the host has its own controls).
+    // On the full page, prefer real history-back (→ wherever you came from), else fall to href="/".
+    const back = document.querySelector(".cat-back");
+    if (back) {
+      if (window.self !== window.top) back.style.display = "none";
+      else back.addEventListener("click", (e) => { if (history.length > 1) { e.preventDefault(); history.back(); } });
+    }
+
+    // narrow-mode nav drawer: the toggle opens the full-width menu; the close button and
+    // selecting a component (or a page link) collapse it again. No-op on wide screens
+    // (the toggle/close are display:none there, so these never fire).
+    const cat = document.querySelector(".cat");
+    const navToggle = document.querySelector(".cat-navtoggle");
+    const setNav = (open) => {
+      cat.setAttribute("data-nav", open ? "open" : "closed");
+      navToggle && navToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    };
+    navToggle && navToggle.addEventListener("click", () => setNav(cat.getAttribute("data-nav") !== "open"));
+    document.querySelector(".cat-nav__close")?.addEventListener("click", () => setNav(false));
+    // set which entry is shown in peek "single" mode (host or nav both use .is-peek-active)
+    const setActive = (slug) => {
+      const el = slug && document.getElementById(slug);
+      if (!el) return;
+      document.querySelectorAll(".cat-doc.is-peek-active").forEach((d) => d.classList.remove("is-peek-active"));
+      el.classList.add("is-peek-active");
+    };
+    window.__catSetActive = setActive;   // host (peek sidebar) drives this on hover
+    document.querySelectorAll(".cat-nav a").forEach((a) => a.addEventListener("click", () => {
+      setNav(false);
+      if (cat.getAttribute("data-peek-single") !== null) {
+        const href = a.getAttribute("href") || "";
+        if (href.startsWith("#")) setActive(href.slice(1));   // component links; page links navigate normally
+      }
+    }));
 
     // sidebar search: filter component links; hide empty groups; open groups while searching.
     const search = document.querySelector(".cat-search");

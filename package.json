@@ -1,0 +1,10 @@
+{
+  "//": "Placeholder for the future standalone repo (see ../SPLIT-PLAN.md). Not consumed yet — today the monorepo root package.json + relative imports are authoritative.",
+  "name": "@tjakoen/batch",
+  "version": "0.1.0",
+  "description": "BATCH — a no-build, server-rendered hypermedia substrate (Bun · Addressable · TypeScript · CSS · htmx).",
+  "type": "module",
+  "license": "Apache-2.0",
+  "author": "Tjakoen Stolk <tjakoen.s@gmail.com> (https://tjakoen.github.io)",
+  "homepage": "https://tjakoen.github.io/batch"
+}
