@@ -56,6 +56,17 @@ function rewriteJs(js: string, bp: string): string {
   return js.replace(spec, (_m, kw, q, url) => `${kw}${q}${bp}${url}${q}`);
 }
 
+/** Scan module JS for RELATIVE import/export specifiers (static, export-from, side-effect, dynamic)
+ *  and resolve each against the module's own URL path — the graph walker for freezing the /modules
+ *  mount (§19.3). Root-absolute and bare specifiers are ignored: absolutes are base-rewritten, bares
+ *  are refused by the module server. Pure, so it is unit-tested directly. */
+export function scanModuleImports(js: string, fromPath: string): string[] {
+  const out = new Set<string>();
+  const spec = /(?:\bfrom|\bimport)\s*\(?\s*(["'])(\.\.?\/[^"']+)\1/g;
+  for (const m of js.matchAll(spec)) out.add(new URL(m[2]!, "http://x" + fromPath).pathname);
+  return [...out];
+}
+
 /** JSON with `"url":"/…"` fields (search.json for the ⌘K palette). Targeted so arbitrary strings
  *  that merely start with "/" are left alone. */
 function rewriteJsonUrls(json: string, bp: string): string {

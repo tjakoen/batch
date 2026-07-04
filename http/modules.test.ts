@@ -3,7 +3,7 @@ import { expect, test, describe, beforeAll, afterAll } from "bun:test";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { makeModuleServer, findServerOnlyImports } from "./modules.ts";
+import { makeModuleServer, findServerOnlyImports, rewriteTsSpecifiers } from "./modules.ts";
 import { bunRuntime } from "../platform/bun-runtime.ts";
 
 describe("findServerOnlyImports", () => {
@@ -17,6 +17,22 @@ describe("findServerOnlyImports", () => {
   });
   test("clean module → nothing flagged", () => {
     expect(findServerOnlyImports(`export const x: number = 1;\nimport {a} from "./a.ts";`)).toEqual([]);
+  });
+});
+
+describe("rewriteTsSpecifiers", () => {
+  test("rewrites relative static, export-from, side-effect, and dynamic imports", () => {
+    const js = `import { a } from "./x.ts";\nexport { b } from "../deep/y.tsx";\nimport "./boot.mts";\n` +
+      `const m = await import("./lazy.ts");`;
+    const out = rewriteTsSpecifiers(js);
+    expect(out).toContain(`from "./x.js"`);
+    expect(out).toContain(`from "../deep/y.js"`);
+    expect(out).toContain(`import "./boot.js"`);
+    expect(out).toContain(`import("./lazy.js")`);
+  });
+  test("leaves bare/url/absolute specifiers and non-import strings alone", () => {
+    const js = `import h from "htmx";\nimport u from "https://cdn/z.ts";\nconst s = "./not-an-import.ts";`;
+    expect(rewriteTsSpecifiers(js)).toBe(js);
   });
 });
 
@@ -34,14 +50,21 @@ describe("makeModuleServer", () => {
   });
   afterAll(() => rm(dir, { recursive: true, force: true }));
 
-  test("transpiles TS → JS: strips types, keeps .ts import specifiers for URL resolution", async () => {
+  test("transpiles TS → JS: strips types, rewrites relative .ts specifiers to .js", async () => {
     const r = await server.serve("/modules/grain/ai/contract.ts");
     expect(r.status).toBe(200);
     expect(r.headers.get("Content-Type")).toContain("text/javascript");
     const body = await r.text();
     expect(body).toContain(`export const ACTIONS = ["go"]`);   // value kept
     expect(body).not.toContain("export type Kind");            // type erased
-    expect(body).toContain(`from "./helper.ts"`);              // relative specifier preserved (browser resolves)
+    expect(body).toContain(`from "./helper.js"`);              // .ts → .js: uniform browser-facing graph
+  });
+
+  test("a .js URL falls back to the .ts source on disk (same body as the .ts URL)", async () => {
+    const r = await server.serve("/modules/grain/ai/contract.js");
+    expect(r.status).toBe(200);
+    expect(await r.text()).toContain(`from "./helper.js"`);
+    expect((await server.serve("/modules/grain/ai/truly-missing.js")).status).toBe(404);
   });
 
   test("refuses a server-only module with a throwing stub that names the offender", async () => {

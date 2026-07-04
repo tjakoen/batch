@@ -12,7 +12,7 @@
 // Zero third-party deps: node fs/path + the global fetch. Pure path/rewrite logic lives in rewrite.ts.
 import { cp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, extname, join, resolve } from "node:path";
-import { extractRefs, normalizeBasePath, rewriteRefs, rewriteOrigin, routeToDistPath } from "./rewrite.ts";
+import { extractRefs, normalizeBasePath, rewriteRefs, rewriteOrigin, routeToDistPath, scanModuleImports } from "./rewrite.ts";
 
 /** A static-asset dir served under a URL prefix, copied verbatim (e.g. { prefix:"/styles", dir:"./grain/styles" }). */
 export interface AssetMount { prefix: string; dir: string; }
@@ -29,6 +29,15 @@ export interface ExportConfig {
   dataRoutes?: string[];
   /** Static dirs copied verbatim under their prefix. Binaries preserved; text (.css/.js) base-rewritten. */
   assets?: AssetMount[];
+  /** Client-module entry URLs (browser-facing `.js`, e.g. "/modules/grain/ai/client-door.js"): each
+   *  entry's transpiled JS is fetched and its RELATIVE import graph walked + frozen to dist at the
+   *  same paths (transpile-at-export, §19.3) — so an operable-static page ships as plain files. */
+  moduleEntries?: string[];
+  /** Caller-owned transform on a fetched page's HTML before it is rewritten + written. The projection
+   *  stays honest (fetch, don't re-render); this is for deployment-mode markers a STATIC copy needs
+   *  baked in (e.g. flipping a page to its client-side transport). Return the HTML unchanged for
+   *  pages you don't mean to touch. */
+  transformPage?: (route: string, html: string) => string;
   /** PUBLIC_BASE_PATH for subpath hosting (user.github.io/<repo>/). "" / "/" = root host. */
   basePath?: string;
   /** Real deploy origin, swapped in for the crawl origin in sitemap.xml/robots.txt. Optional. */
@@ -42,6 +51,7 @@ export interface ExportReport {
   pages: { route: string; status: number; bytes: number; ok: boolean; error?: string }[];
   dataRoutes: { route: string; status: number; ok: boolean }[];
   assets: { prefix: string; files: number }[];
+  modules: string[];
   warnings: string[];
 }
 
@@ -108,7 +118,7 @@ export async function exportSite(cfg: ExportConfig): Promise<ExportReport> {
     try {
       const { status, body } = await fetchText(cfg.baseURL + route);
       if (status !== 200) { pages.push({ route, status, bytes: 0, ok: false, error: `HTTP ${status}` }); log(`  ✗ ${route} (HTTP ${status})`); continue; }
-      const html = rewriteRefs(body, ".html", bp);
+      const html = rewriteRefs(cfg.transformPage ? cfg.transformPage(route, body) : body, ".html", bp);
       const bytes = await writeInto(dist, routeToDistPath(route, true), html);
       writtenHtml.push({ route, html });
       pages.push({ route, status, bytes, ok: true });
@@ -140,6 +150,28 @@ export async function exportSite(cfg: ExportConfig): Promise<ExportReport> {
       log(`  ✗ ${route} (${(e as Error).message})`);
     }
   }
+
+  // 2b. Frozen client modules (§19.3, transpile-at-export): walk the browser-facing module graph
+  // from each entry — the server already serves transpiled `.js` with relative specifiers, so the
+  // frozen files are byte-honest projections; a static host serves them with a JS MIME type.
+  const modules: string[] = [];
+  const moduleQueue = [...(cfg.moduleEntries ?? [])];
+  const moduleSeen = new Set<string>();
+  while (moduleQueue.length) {
+    const route = moduleQueue.shift()!;
+    if (moduleSeen.has(route)) continue;
+    moduleSeen.add(route);
+    try {
+      const { status, body } = await fetchText(cfg.baseURL + route);
+      if (status !== 200) { warnings.push(`module ${route} → HTTP ${status}; the frozen graph is incomplete.`); continue; }
+      await writeInto(dist, routeToDistPath(route, false), rewriteRefs(body, ".js", bp));
+      modules.push(route);
+      moduleQueue.push(...scanModuleImports(body, route));
+    } catch (e) {
+      warnings.push(`module ${route} failed: ${(e as Error).message}`);
+    }
+  }
+  if (modules.length) log(`  ⧉ modules  (${modules.length} frozen from ${(cfg.moduleEntries ?? []).length} entr${(cfg.moduleEntries ?? []).length === 1 ? "y" : "ies"})`);
 
   // 3. Static assets copied verbatim under their prefix.
   const assets: ExportReport["assets"] = [];
@@ -174,6 +206,6 @@ export async function exportSite(cfg: ExportConfig): Promise<ExportReport> {
   for (const w of warnings) log(`  ⚠ ${w}`);
 
   const okPages = pages.filter((p) => p.ok).length;
-  log(`[export] done: ${okPages}/${pages.length} pages, ${dataRoutes.filter((d) => d.ok).length}/${(cfg.dataRoutes ?? []).length} data routes, ${assets.reduce((s, a) => s + a.files, 0)} asset files.`);
-  return { distDir: dist, basePath: bp, pages, dataRoutes, assets, warnings };
+  log(`[export] done: ${okPages}/${pages.length} pages, ${dataRoutes.filter((d) => d.ok).length}/${(cfg.dataRoutes ?? []).length} data routes, ${modules.length} frozen modules, ${assets.reduce((s, a) => s + a.files, 0)} asset files.`);
+  return { distDir: dist, basePath: bp, pages, dataRoutes, assets, modules, warnings };
 }

@@ -379,6 +379,7 @@ function page(pageNav: string, navGroups: string, main: string): string {
       });
     });
   </script>
+  <link rel="stylesheet" href="/styles/cmdk.css">
   <script src="/scripts/cmdk.js" defer></script>
 </body>
 </html>`;

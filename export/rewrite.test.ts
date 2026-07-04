@@ -1,6 +1,22 @@
 // batch/export/rewrite.test.ts — the export's branching logic (path mapping + base-path rewrite).
 import { expect, test, describe } from "bun:test";
-import { normalizeBasePath, routeToDistPath, rewriteRefs, rewriteOrigin, extractRefs } from "./rewrite.ts";
+import { normalizeBasePath, routeToDistPath, rewriteRefs, rewriteOrigin, extractRefs, scanModuleImports } from "./rewrite.ts";
+
+describe("scanModuleImports", () => {
+  test("resolves relative static/export-from/side-effect/dynamic specifiers against the module path", () => {
+    const js = `import { a } from "./contract.js";\nexport { b } from "../shared/util.js";\n` +
+      `import "./boot.js";\nconst m = await import("./lazy.js");`;
+    expect(scanModuleImports(js, "/modules/grain/ai/client-door.js").sort()).toEqual([
+      "/modules/grain/ai/boot.js", "/modules/grain/ai/contract.js",
+      "/modules/grain/ai/lazy.js", "/modules/grain/shared/util.js",
+    ]);
+  });
+  test("ignores bare, root-absolute, and url specifiers; dedupes", () => {
+    const js = `import h from "htmx";\nimport s from "/scripts/x.js";\nimport u from "https://cdn/z.js";\n` +
+      `import { a } from "./a.js";\nimport { b } from "./a.js";`;
+    expect(scanModuleImports(js, "/modules/grain/ai/door.js")).toEqual(["/modules/grain/ai/a.js"]);
+  });
+});
 
 describe("normalizeBasePath", () => {
   test("empty forms → ''", () => {

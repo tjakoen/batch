@@ -2070,9 +2070,11 @@ What Tier 1 does:
   exported page for internal links that resolve to nothing it wrote and **warns, listing them** — so
   operable surfaces excluded by the caller (`/dashboard`, `/intent`, `/ai/manifest`) surface as a
   confirmable list instead of shipping as silent dead links. (It also caught a pre-existing broken
-  doc-example image, `/screenshots/loop-desk.png` in `figure.md`.)
+  doc-example image in `figure.md` — since fixed to point at a served grain asset.)
 
-Known Tier-1 limitations (honest): `sitemap.xml` still lists operable routes (`/dashboard`, `/loop`)
+Known Tier-1 limitations (honest): the export needs a *server* — opening `dist/index.html` via
+`file://` renders unstyled because every asset ref is root-absolute (that's what hosts need; the
+export log says so); `sitemap.xml` still lists operable routes (`/dashboard`, `/loop`)
 the static site doesn't include — it's the server's sitemap frozen as-is (projection, not re-render);
 and runtime-constructed URLs in JS (string concat) aren't base-path rewritten. **Tier 2** (true
 prerender of `hx-trigger="load"` targets) remains deferred — build only when a data-backed page must
@@ -2149,7 +2151,12 @@ client-door wiring is `grain/ai/*` (it knows the door); the mode switch + which 
 is `project`/`portfolio`. Static export (§18) freezes the transpiled modules into `dist/` (transpile-
 at-export), so an operable-static showcase ships as plain files.
 
-**Status:** §19.1–19.2 (the module server + client-safe guard) **built + tested (2026-07-04)**. §19.3
-(the client-side door) is **designed, not built** — it lands after the GRAIN interaction layer
-stabilizes (ROADMAP Track B.6 / A). Nothing in the live server path changes until a composition root
-opts in.
+**Status:** §19.1–19.3 **built + tested (2026-07-04)**. The module server serves an all-`.js`
+browser-facing graph (a `.js` URL falls back to its `.ts` source; relative specifiers rewritten
+`.ts`→`.js`) — required because static hosts serve `.ts` files with a non-JS MIME type that browsers
+refuse for ES modules; dev and the frozen export use the same URLs. The client door itself is
+`grain/ai/client-door.ts` (the loopback `OpChannel` → the dispatcher's `applyOp`); the dispatcher's
+transport seam is `<body data-ai-transport="client">`; the export freezes the door's module graph via
+`exportSite({ moduleEntries })` and the caller stamps the marker via `transformPage`
+(`project/tools/export.ts`). The live server path is unchanged — pages without the marker keep the
+server door (verified both ways).

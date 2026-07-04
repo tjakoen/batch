@@ -61,11 +61,23 @@ export interface ModuleServer {
   refresh(): void;
 }
 
+/** Rewrite RELATIVE import/export specifiers with TS extensions to `.js` in transpiled output, so the
+ *  browser-facing module graph is uniformly `.js`. Why: a static export freezes these modules to real
+ *  files, and static hosts (GitHub Pages) serve `.ts` with a non-JS MIME type that browsers refuse for
+ *  ES modules. Serving `.js` URLs live AND frozen keeps dev and static identical. Pure → unit-tested. */
+export function rewriteTsSpecifiers(js: string): string {
+  return js.replace(
+    /((?:from|import)\s*\(?\s*)(["'])(\.\.?\/[^"']+)\.(?:ts|tsx|mts)\2/g,
+    (_m, lead: string, q: string, path: string) => `${lead}${q}${path}.js${q}`,
+  );
+}
+
 /** Serve TypeScript/JS modules to the browser, transpiled on request.
  *  `roots` maps the first URL segment under the prefix to a directory, e.g. `{ grain: "./grain" }`
- *  serves "/modules/grain/ai/contract.ts" from "./grain/ai/contract.ts". Relative imports inside a
- *  module resolve by URL and get transpiled the same way, recursively — no import rewriting needed
- *  (source uses explicit `.ts` extensions under verbatimModuleSyntax). */
+ *  serves "/modules/grain/ai/contract.js" from "./grain/ai/contract.ts" (a `.js` URL falls back to the
+ *  `.ts`/`.tsx` source on disk). Relative imports inside a module resolve by URL and get transpiled the
+ *  same way, recursively; their TS extensions are rewritten to `.js` (see rewriteTsSpecifiers) so the
+ *  whole browser-facing graph is `.js` — required for static freezes (Pages MIME), same URLs in dev. */
 export function makeModuleServer(
   rt: Runtime,
   opts: { roots: Record<string, string>; prefix?: string; allowBareImports?: string[] },
@@ -92,10 +104,19 @@ export function makeModuleServer(
     if (!root || !sub) return new Response("Not found", { status: 404 });
 
     // separator-aware containment (same guard as static.ts): no path traversal out of the root.
-    const file = resolve(join(root, sub));
+    let file = resolve(join(root, sub));
     if (file !== root && !file.startsWith(root + sep)) return new Response("Forbidden", { status: 403 });
     if (!CLIENT_EXT.has(extname(file))) return new Response("Unsupported module type", { status: 415 });
-    if (!(await rt.fileExists(file))) return new Response("Not found", { status: 404 });
+    if (!(await rt.fileExists(file))) {
+      // a `.js` URL serves its TypeScript source: the browser-facing graph is `.js`, disk stays `.ts`.
+      const tsFallback = extname(file) === ".js"
+        ? [file.slice(0, -3) + ".ts", file.slice(0, -3) + ".tsx"]
+        : [];
+      const found = (await Promise.all(tsFallback.map(async (f) => (await rt.fileExists(f)) ? f : null)))
+        .find((f) => f !== null);
+      if (!found) return new Response("Not found", { status: 404 });
+      file = found;
+    }
 
     const source = await rt.readFile(file);
     const offenders = findServerOnlyImports(source, allow);
@@ -106,7 +127,7 @@ export function makeModuleServer(
       return js(stub);
     }
 
-    const out = transpiler.transformSync(source);                 // TS → browser JS; `.ts` specifiers kept
+    const out = rewriteTsSpecifiers(transpiler.transformSync(source)); // TS → browser JS, all-`.js` graph
     cache.set(rel, out);
     return js(out);
   }
