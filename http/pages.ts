@@ -15,9 +15,11 @@ import { makeStatic } from "./static.ts";
 type RenderPage = (html: string) => Promise<string>;
 
 // `injectBeforeBodyEnd` is appended before </body> on EVERY rendered page — the seam
-// for global, platform-wide assets (e.g. the command-palette island). Generic: the
-// composition root decides what goes in it.
-export function makePageServer(rt: Runtime, pagesRoot: string, renderPage?: RenderPage, injectBeforeBodyEnd = "") {
+// for global, platform-wide assets (e.g. the command-palette island). `injectBeforeHeadEnd`
+// is the same seam before </head>, for render-BLOCKING assets that must run before first
+// paint (e.g. a theme bootstrap that pre-sets attributes so styles don't flash). Generic:
+// the composition root decides what goes in both.
+export function makePageServer(rt: Runtime, pagesRoot: string, renderPage?: RenderPage, injectBeforeBodyEnd = "", injectBeforeHeadEnd = "") {
   const serve = makeStatic(rt, pagesRoot);    // traversal guard applies under pagesRoot
   return async (pathname: string): Promise<Response> => {
     const isPage = !extname(pathname);
@@ -37,6 +39,7 @@ export function makePageServer(rt: Runtime, pagesRoot: string, renderPage?: Rend
     // expand component tags in page HTML; assets (.js/.css/…) pass through
     if (isPage && renderPage && res.status === 200) {
       let out = await renderPage(await res.text());
+      if (injectBeforeHeadEnd && out.includes("</head>")) out = out.replace("</head>", injectBeforeHeadEnd + "</head>");
       if (injectBeforeBodyEnd && out.includes("</body>")) out = out.replace("</body>", injectBeforeBodyEnd + "</body>");
       return new Response(out, { headers: res.headers });
     }

@@ -465,7 +465,7 @@ imports from the app.
 │   │   ├── validate.ts           #     requireString / HttpError
 │   │   ├── errors.ts             #     jsonError
 │   │   ├── static.ts             #     makeStatic(rt, root) — root injected; binary types (woff2…)
-│   │   ├── pages.ts              #     makePageServer — flat-file pages; injectBeforeBodyEnd seam (§17)
+│   │   ├── pages.ts              #     makePageServer — flat-file pages; head+body inject seams (§17)
 │   │   ├── stream.ts             #     createStream() — generic per-session SSE push hub (§17)
 │   │   └── sitemap.ts            #     createSitemap — pages/ tree → routes / xml
 │   ├── /render
@@ -1947,8 +1947,13 @@ by semantic surface address (`data-surface`) — never by tag or CSS class.
 
 ### 17.2 Two reusable seams added to the stack
 
-- **`makePageServer(…, injectBeforeBodyEnd)`** — appends a global asset (here the
-  ⌘K palette) before `</body>` on every rendered page. The platform-wide-asset seam.
+- **`makePageServer(…, injectBeforeBodyEnd, injectBeforeHeadEnd)`** — appends a global
+  asset before `</body>` (deferred islands: the ⌘K palette, the theming controls) and,
+  via the head seam, before `</head>` (render-BLOCKING bootstraps that must run before
+  first paint — the theme pre-set that stops the default-theme flash) on every rendered
+  page. The platform-wide-asset seams. A page shell built outside the page server (the
+  catalog) accepts the same pair via `createCatalog(…, { headEnd, bodyEnd })` — one
+  source of global assets, no page drifts.
 - **`makeStatic` binary content-types** — woff2/woff/svg are now typed correctly;
   fonts are served byte-exact from the composition root (a text read would corrupt
   them), so self-hosted fonts need no CDN.
