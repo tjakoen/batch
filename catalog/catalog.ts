@@ -63,7 +63,13 @@ function parseDoc(md: string): Doc {
 
 interface Sitemap { routes(): string[]; }
 
-export function createCatalog(rt: Runtime, componentsDir: string | string[], sitemap?: Sitemap) {
+// `inject` mirrors makePageServer's seams: the catalog builds its own page shell (it isn't a
+// pages/ file), so the composition root passes the SAME global assets here — headEnd for
+// render-blocking bootstraps (theme pre-set), bodyEnd for deferred islands (palette, theming
+// controls). Without it the catalog drifts from every other page (e.g. ignores the saved theme).
+export interface CatalogInject { headEnd?: string; bodyEnd?: string; }
+
+export function createCatalog(rt: Runtime, componentsDir: string | string[], sitemap?: Sitemap, inject: CatalogInject = {}) {
   let cache: string | null = null;
   let comps: Component[] | null = null;
 
@@ -165,7 +171,7 @@ export function createCatalog(rt: Runtime, componentsDir: string | string[], sit
     const pageNav = (sitemap?.routes() ?? []).map(p => `<a href="${p}">${esc(p)}</a>`).join("");
     const main = list.length ? list.map(renderDoc).join("") : `<p>No <code>.md</code> docs found under the components dir.</p>`;
 
-    cache = page(pageNav, navGroups, main);
+    cache = page(pageNav, navGroups, main, inject);
     return cache;
   }
 
@@ -174,13 +180,13 @@ export function createCatalog(rt: Runtime, componentsDir: string | string[], sit
 }
 
 // the catalog shell — links the real design-system CSS so examples render for real
-function page(pageNav: string, navGroups: string, main: string): string {
+function page(pageNav: string, navGroups: string, main: string, inject: CatalogInject = {}): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Component Catalog</title>
+<title>Component Catalog</title>${inject.headEnd ?? ""}
 <link rel="stylesheet" href="/styles/variables.css">
 <link rel="stylesheet" href="/styles/global.css">
 <link rel="stylesheet" href="/styles/grain.css">
@@ -379,7 +385,7 @@ function page(pageNav: string, navGroups: string, main: string): string {
       });
     });
   </script>
-  <script src="/scripts/cmdk.js" defer></script>
+  ${inject.bodyEnd ?? ""}
 </body>
 </html>`;
 }
