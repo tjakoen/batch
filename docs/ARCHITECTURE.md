@@ -51,7 +51,10 @@ or drop a capability → update this list (`../../CLAUDE.md` alignment table →
   client-safe modules), so even client code has no build. Near-zero framework JS ships.
 - **Static export = a projection of the running server.** `bun run export` (§18) crawls the live
   server and freezes it to static files — never a second renderer, so the export can't drift from the
-  app. Content pages export; operable `/intent`+SSE surfaces are inert by design.
+  app. It also **freezes a client-module graph** (`moduleEntries` — each entry's relative import
+  graph, transpiled at export). Content pages export; operable `/intent`+SSE surfaces are inert by
+  design *unless* a page opts into the client-side door (§19.3), which runs the same vocabulary
+  fully in-browser on the static copy.
 
 **Also — useful features, deliberately listed:**
 
@@ -1393,13 +1396,17 @@ the catalog's **Pages** nav (§13a), **`/sitemap.xml`** (search engines), and
 three with no extra wiring.
 
 ```typescript
-// /framework/http/sitemap.ts (shape) — pages/ tree → clean routes
+// /framework/http/sitemap.ts (shape) — pages/ tree → clean routes (+ any extras)
 //   index.html → "/"   home.html → "/home"   profile/settings.html → "/profile/settings"
-export function createSitemap(pagesRoot: string) {
+export function createSitemap(pagesRoot: string, extraRoutes: () => string[] = () => []) {
   // routes(): string[]   xml(origin): string   refresh(): void
   return { routes, xml, refresh };
 }
 ```
+
+`extraRoutes` lets the composition root add routes that don't come from the pages tree — e.g. a
+content engine's collections (MILL's `/notes/:slug` pages) — so the sitemap stays the single list
+of everything the server actually serves. Batch stays ignorant of who provides them.
 
 ### 11.3 Page transitions (native, cross-document)
 
@@ -2131,7 +2138,7 @@ logic. Anything that needs a server or holds sensitive data stays server-side.**
 same boundary §18 draws for the static export — client modules just move the line for *logic* the way
 export moves it for *pages*.
 
-### 19.3 The client-side runtime (the door, in the browser) — opt-in, planned
+### 19.3 The client-side runtime (the door, in the browser) — opt-in, built
 
 The door is already port-shaped: `createInteractionLayer({ reasoner, stream, service… })` pushes
 `RenderOp`s to an **`OpChannel`** port (batch's SSE hub satisfies it structurally, §17). So running

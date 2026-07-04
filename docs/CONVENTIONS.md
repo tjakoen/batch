@@ -253,8 +253,8 @@ would get its own e2e when grain is extracted.
 - Files & directories: **kebab-case**. Component dir name = its tag (`b-button`, `loop-card`).
 - One file = one concern; colocate a module's test next to it.
 - Headers everywhere (§2). Section dividers in CSS: `/* ---- label ---- */`.
-- Commit messages: imperative subject, a short body explaining *why*, and the repo's
-  `Co-Authored-By` trailer.
+- Commit messages: imperative subject, a short body explaining *why*. No AI attribution
+  trailers (the AI-use receipt lives in the README badge + footer, not commit metadata).
 
 ---
 

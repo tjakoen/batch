@@ -71,7 +71,6 @@ Code + colocated unit test(s) for any branching logic + `tsc` and `bun test` gre
 
 ## Working notes
 
-- Commit/push only when asked; branch off `main` if you must. End commit messages with the
-  `Co-Authored-By: Claude` trailer.
+- Commit/push only when asked; branch off `main` if you must. No AI attribution trailers on commits.
 - Voice for prose in the owner's name: `../portfolio/standards/VOICE.md` (no backticks in prose).
   README badges/footer: `../portfolio/standards/README-STANDARD.md`.
