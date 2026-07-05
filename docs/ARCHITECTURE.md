@@ -2043,6 +2043,31 @@ Draw the line explicitly or the export silently ships broken pages:
    is then complete with no backend. This is the only tier that makes a data-backed page
    genuinely static.
 
+### The export disposition of a route (the four buckets)
+
+The stack is dual-mode by design: the **live server is primary** (§12), and the export is a
+projection layered *on top of* it, never a replacement. So "can this app be static?" is not one
+answer — it's a per-route question, and every route falls into exactly one of four buckets. This is
+the rule an app with an API or a database needs before it exports.
+
+The governing principle, stated once: **a route can be frozen only if its bytes are identical for
+every visitor at build time.** Everything below is a corollary of that.
+
+| Bucket | What it is | Export behavior |
+|---|---|---|
+| **Content** | HTML complete server-side, same for everyone (editorial pages, `/catalog`, `/grain`) | Freezes verbatim. The primary case. |
+| **Operable** | behind the one door — `/intent` + SSE (§17) | Excluded (a static copy has no backend) — *unless* its scenarios are service-free, in which case the page opts into the **client-side door** (§19.3) and runs the same vocabulary in-browser. That is how `/grain`'s demo survives the freeze. |
+| **Snapshot** | a data-backed read (`hx-trigger="load"` → `/ui/*`) whose data is the **same at build time** | Freezable via **Tier 2 prerender**: bake the fragment in once. A DB-backed page can be static *as a build-time snapshot* — explicitly not live data. (Tier 2 is designed, not yet built.) |
+| **Dynamic** | per-request or per-user data, real writes, auth | **Cannot** be static. That route stays on a running server. |
+
+So an app built with an API/DB is not "static or not" — it's a mix. Its content and snapshot routes
+export to a CDN; its genuinely-dynamic routes keep the Bun server. The honest end-state is a **hybrid
+deploy** from one codebase: frozen files where the bytes are invariant, a live server where they
+aren't. Two consequences worth making first-class (tracked in ROADMAP Track B.9): Tier 2 needs
+building before snapshot pages export complete instead of as `Loading…` shells, and a route should
+eventually **declare its own bucket** rather than the export caller hand-maintaining the operable /
+client-door sets (today they live in `project/tools/export.ts`).
+
 ### Placement
 
 A reusable **`batch/export`** capability (not a project-local script), exposed as
