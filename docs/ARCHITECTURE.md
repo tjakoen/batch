@@ -6,8 +6,10 @@ server-rendered hypermedia stack. Reusable design-system component tags use the
 (`item-card`, `app-header`).
 
 **Status:** Living document · **Runtime:** Bun 1.3.14. Backend certified 2026-06-26
-(§14.1); the frontend layer — pages, component catalog, sitemap, the `b-` component
-set, self-closing/prop-text — added and audited 2026-06-27 (§14.4). The **AI
+(§14.1); the frontend layer — pages, sitemap, the `b-` component
+set, self-closing/prop-text — added and audited 2026-06-27 (§14.4). (The component
+catalog since moved UP to GRAIN — its Human/AI grade toggle is grain's vocabulary — so
+it's no longer BATCH's; see `grain/catalog`.) The **AI
 interaction layer** (server-push over SSE, the one `/intent` door, render ops,
 grade-as-signal) and the **Sourdough** design-system retheme were added and
 audited 2026-06-30 (§17, §14.5), then the repo was **reorganized into a monorepo** the
@@ -16,17 +18,17 @@ same day (§3). The code in `batch/ grain/ project/` is the source of truth.
 > **The concerns in this repo (monorepo).** `batch/` is the **stack** this document
 > describes (the reusable no-build hypermedia substrate). `grain/` is **GRAIN**, the
 > AI-interaction design system built on BATCH (`docs/GRAIN.md`). `project/` is the
-> product (a personal AI assistant) + its skin; `project/server.ts` is the one place
+> product (a personal AI assistant) + its skin; `tjakoen.github.io/server.ts` is the one place
 > those three meet. No Bun workspaces — plain relative imports, one `package.json` +
 > `tsconfig`. Each is headed for its own repo once proven; the boundary is kept clean
 > (`batch/` imports nothing from `grain/`/`project/`, verified). Two further resident
-> concerns build on the stack: **`portfolio/`** (a personal site — temporary resident,
+> concerns build on the stack: **`tjakoen.github.io/`** (a personal site — temporary resident,
 > moving to its own repo) and, planned, **`MILL/`** — a reusable markdown→GRAIN CMS that
 > sits **above `grain`** (depends on `grain` + `batch`, never the reverse; an *extension
 > of neither*). MILL's core is framework-agnostic (a Markdown→components engine driven by a
 > render adapter); its default adapter emits GRAIN + serves on BATCH. The portfolio *uses*
 > MILL to manage its markdown content — its notes/blog **and** the rendered BATCH/GRAIN docs —
-> but is otherwise a custom BATCH + GRAIN app. See `mill/PLAN.md` (canonical) + `portfolio/PLAN.md`
+> but is otherwise a custom BATCH + GRAIN app. See `mill/PLAN.md` (canonical) + `tjakoen.github.io/PLAN.md`
 > (consumer view). Product docs are under `project/docs/`; the doc map is `DOCS.md` at the repo root.
 
 Every code block here has been run on Bun 1.3.14. For the final revision the
@@ -62,8 +64,10 @@ or drop a capability → update this list (`../../CLAUDE.md` alignment table →
   turns component tags into HTML, zero third-party runtime deps (§2, §9).
 - **A generic SSE push hub** (`http/stream.ts`) — opaque-payload server push; satisfies GRAIN's
   `OpChannel` port structurally without BATCH knowing anything about `RenderOp`s (§17).
-- **The component catalog** — a Storybook-style `/catalog` generated server-side from each
-  component's co-located `.md`; no build, no deps (§13a).
+- **The component catalog** now lives in GRAIN (`grain/catalog`), not BATCH — its Human/AI grade
+  toggle is grain's grade-as-signal vocabulary. It reads the filesystem directly and imports nothing
+  from batch; the composition root passes it the page-nav routes. (§13a is retained for the
+  Storybook-style generation technique it still uses; ownership is grain's.)
 - **Sitemap + SEO from one source** — one page list feeds `/catalog`, `/sitemap.xml`, `/robots.txt`
   (§11.4).
 - **A framework-generic audit engine** — perf + SEO/AEO baselines via Playwright, vocabulary-agnostic
@@ -91,7 +95,7 @@ This records *why* the choices were made and what they cost — so future decisi
 are made with eyes open, not by inertia.
 
 > The *values* behind these choices — the beliefs, stated crisply — live in
-> [`PHILOSOPHY.md`](../../portfolio/PHILOSOPHY.md). This section is the engineering rationale and the costs.
+> [`PHILOSOPHY.md`](../../tjakoen.github.io/PHILOSOPHY.md). This section is the engineering rationale and the costs.
 
 **Why a hypermedia / server-rendered-fragment stack.** Avoids a client framework,
 a build step, and client/server state-sync bugs; yields a standards-based stack
@@ -2066,7 +2070,7 @@ deploy** from one codebase: frozen files where the bytes are invariant, a live s
 aren't. Two consequences worth making first-class (tracked in ROADMAP Track B.9): Tier 2 needs
 building before snapshot pages export complete instead of as `Loading…` shells, and a route should
 eventually **declare its own bucket** rather than the export caller hand-maintaining the operable /
-client-door sets (today they live in `project/tools/export.ts`).
+client-door sets (today they live in `tjakoen.github.io/tools/export.ts`).
 
 ### Placement
 
@@ -2077,15 +2081,15 @@ and writes `dist/`. It lives in **`batch/`** on purpose: crawl-sitemap→write-f
 substrate concern, so it must travel with the framework — then *any* BATCH site (the portfolio
 and its `/grain` showcase, and others later) gets Pages hosting from the one tool, per BATCH's
 extraction philosophy. No change to `batch/`/`grain/`/`project` runtime code — the export is an
-outside observer, so it can't regress the live path. (See `portfolio/PLAN.md` piece 1, which drives
+outside observer, so it can't regress the live path. (See `tjakoen.github.io/PLAN.md` piece 1, which drives
 the first real use.)
 
 ### Status — Tier 1 shipped (2026-07-04)
 
 Built exactly as the audit is (§ generic-engine-in-batch): the framework-generic crawler+writer is
 **`batch/export/export.ts`** (`exportSite(config)` → `ExportReport`; imports only `node:fs`/`node:path`
-+ global `fetch`, knows no vocabulary), and the app-specific **caller** is **`project/tools/export.ts`**
-(`bun run export`) — it spawns `project/server.ts`, derives the page allowlist from
++ global `fetch`, knows no vocabulary), and the app-specific **caller** is **`tjakoen.github.io/tools/export.ts`**
+(`bun run export`) — it spawns `tjakoen.github.io/server.ts`, derives the page allowlist from
 `createSitemap()` over **both** `config.pagesDir` and `config.portfolioPagesDir` (so `/grain`,
 `/batch`, `/mill` come along) plus `/catalog`, drops the operable set (`/loop`, `/dashboard`, and the
 retired `/home`), and passes `config.assetDirs` + `config.fontsDir` as asset mounts. The pure
@@ -2179,7 +2183,7 @@ The result, for a static host like the portfolio: **a human and an AI operate th
 vocabulary through the same door, applied by the same dispatcher, with no backend** — the thesis, made
 hostable. It stays **opt-in** because it ships framework JS (the door + reasoner + registry), which
 trades against the native-first byte budget (§0.5) — right for a showcase surface, wrong for content
-pages. Selecting server-door vs client-door is a **composition-root** choice (`project/server.ts`);
+pages. Selecting server-door vs client-door is a **composition-root** choice (`tjakoen.github.io/server.ts`);
 `batch` only provides the mechanism (the module server + a generic loopback channel), knowing nothing
 of the door or the vocabulary.
 
@@ -2195,5 +2199,5 @@ refuse for ES modules; dev and the frozen export use the same URLs. The client d
 `grain/ai/client-door.ts` (the loopback `OpChannel` → the dispatcher's `applyOp`); the dispatcher's
 transport seam is `<body data-ai-transport="client">`; the export freezes the door's module graph via
 `exportSite({ moduleEntries })` and the caller stamps the marker via `transformPage`
-(`project/tools/export.ts`). The live server path is unchanged — pages without the marker keep the
+(`tjakoen.github.io/tools/export.ts`). The live server path is unchanged — pages without the marker keep the
 server door (verified both ways).

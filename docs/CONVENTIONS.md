@@ -5,7 +5,7 @@ each thing — so new code (and new sessions) extend the grain instead of fighti
 When a rule and the surrounding code disagree, the surrounding code wins until this doc
 is updated; keep them in sync.
 
-> Companion docs: [`PHILOSOPHY.md`](../../portfolio/PHILOSOPHY.md) (the why), [`ARCHITECTURE.md`](ARCHITECTURE.md)
+> Companion docs: [`PHILOSOPHY.md`](../../tjakoen.github.io/PHILOSOPHY.md) (the why), [`ARCHITECTURE.md`](ARCHITECTURE.md)
 > (the substrate), [`GRAIN.md`](../../grain/docs/GRAIN.md) (the design system + AI layer),
 > [`AI-INTERFACE.md`](../../grain/docs/AI-INTERFACE.md) (the contract),
 > [`DESIGN-SYSTEM.md`](../../grain/docs/DESIGN-SYSTEM.md) (the visual identity), [`grain/README.md`](../../grain/README.md) (usage).
@@ -21,7 +21,7 @@ batch/   the no-build hypermedia substrate (render, http, assets, catalog, platf
    └─ grain/   the design system + optional AI-interaction layer (default theme lives here)
         ├─ project/    the app — domain, data, services, routes, pages, DOMAIN components, server.ts
         ├─ mill/       the Markdown→GRAIN CMS (a reusable layer above grain; planned)
-        └─ portfolio/  the personal site (a custom BATCH+GRAIN app that uses MILL for content)
+        └─ tjakoen.github.io/  the personal site (a custom BATCH+GRAIN app that uses MILL for content)
 ```
 
 **Hard rules (enforced by review; verified in the audit):**
@@ -29,7 +29,7 @@ batch/   the no-build hypermedia substrate (render, http, assets, catalog, platf
 - `grain/` imports **nothing** from `batch/`. It depends only on the **`OpChannel` port**
   (`grain/ai/contract.ts`) — never a concrete substrate. It ships its own default theme.
 - `project/` wires the graph. Cross-layer dependencies are declared as **constructor/factory
-  params**, and the **only place all three meet is `project/server.ts`** (the composition root).
+  params**, and the **only place all three meet is `tjakoen.github.io/server.ts`** (the composition root).
 - New design-system work goes **in `grain/` by default** (it's reusable). Only obviously
   app-specific things (a one-off page layout, a domain component like `loop-card`) live in
   `project/`. Test: *"would another product on GRAIN want this?"* → yes = grain, no = project.
@@ -213,11 +213,11 @@ appropriate tier(s). Run: `bun run test` (unit + integration), `bun run test:e2e
 |---|---|---|---|
 | **Unit** | `bun test` | `*.test.ts` (colocated) | one module in isolation; deps faked. Pure logic, the reasoner, render engine, services, parsing. |
 | **Integration** | `bun test` | `*.integration.test.ts` (colocated) | several **real** modules together over HTTP/SSE, no browser. The door → reasoner → push path, routes, manifest. |
-| **E2E** | `playwright test` | `project/e2e/*.e2e.ts` | a real browser against the running app. The **client dispatcher** (click/Enter → `/intent` → SSE → DOM), the spotlight, the `<dialog>` palette, interrupts, auto-scroll, view transitions. |
+| **E2E** | `playwright test` | `tjakoen.github.io/e2e/*.e2e.ts` | a real browser against the running app. The **client dispatcher** (click/Enter → `/intent` → SSE → DOM), the spotlight, the `<dialog>` palette, interrupts, auto-scroll, view transitions. |
 
 **Tests travel with the code they test** (this is what makes the repo split clean, §10):
 unit tests are colocated in `batch`/`grain`/`project`; the door **integration** test lives in
-`project/routes/` (it exercises the app's composition); **e2e** lives in `project/e2e/` because
+`tjakoen.github.io/routes/` (it exercises the app's composition); **e2e** lives in `tjakoen.github.io/e2e/` because
 it drives the *product*. `batch`/`grain` carry only their own unit tests; a grain demo harness
 would get its own e2e when grain is extracted.
 
@@ -265,7 +265,7 @@ would get its own e2e when grain is extracted.
   it accepts actions, declare `data-kind`/`data-accepts`. Add a unit/e2e test if it has behavior.
 - **An action/verb:** extend `ActionName` + `ACTIONS` (§3), handle it in the reasoner, reference
   it via the registry; add a unit test (reasoner) + integration test (door path).
-- **A page:** add `project/pages/<name>.html`, link the three GRAIN sheets + `/components.css`,
+- **A page:** add `tjakoen.github.io/pages/<name>.html`, link the three GRAIN sheets + `/components.css`,
   give acting regions a `data-surface`; e2e-test any new interaction.
 - **A theme tweak:** edit `grain/styles/variables.css` token values (or a project override
   sheet) — never per-component.
@@ -281,13 +281,14 @@ boundaries (§1) are kept clean so the split is a copy, not a rewrite. What goes
 | Repo | Takes | Tests it carries |
 |---|---|---|
 | **batch** | `batch/**` + its `__fixtures__/` | its colocated `*.test.ts` (no app, no e2e) |
-| **grain** | `grain/**` (AI layer, components, default theme, fonts, islands) | its colocated `*.test.ts`; **adds its own e2e** against a minimal demo harness |
-| **project** | `project/**` incl. `project/e2e/` + a copy of `playwright.config.ts` | its `*.test.ts`, the door `*.integration.test.ts`, and the e2e suite |
+| **grain** | `grain/**` (AI layer, components, default theme, fonts, islands, the catalog) | its colocated `*.test.ts`; **adds its own e2e** against a minimal demo harness |
+| **tjakoen.github.io** (the app) | `tjakoen.github.io/**` incl. `tjakoen.github.io/e2e/` + a copy of `playwright.config.ts` | its `*.test.ts`, the door `*.integration.test.ts`, and the e2e suite |
+| **project** (paused) | `project/**` — docs-only archive (`PROJECT-PLAN.md`, `docs/MVP.md`); no code/tests until the product resumes | — |
 
 **Monorepo-level tooling** (`package.json`, `tsconfig.json`, `playwright.config.ts`, `bun.lock`,
 `.gitignore`) is split/copied per repo. What changes on extraction (and **only** this — the
 code doesn't):
-- **`project/config.ts` paths** — `./grain/components`, `./grain/styles`, `./grain/fonts` become
+- **`tjakoen.github.io/config.ts` paths** — `./grain/components`, `./grain/styles`, `./grain/fonts` become
   resolved package paths (or stay relative if vendored). The static/serving wiring follows.
 - **Cross-layer imports** — `../batch/*` and `../grain/*` become package imports
   (`@org/batch`, `@org/grain`). Nothing else: `batch` imports nothing inward, and `grain`
