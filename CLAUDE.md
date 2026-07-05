@@ -3,20 +3,21 @@
 Onboarding + operating rules for any AI (or human) working in **`batch/`**, the no-build
 server-rendered hypermedia substrate. Read this first, then the docs it points to. Keep it accurate.
 
-> Personal standards (voice, badges, AI-use posture) live in `../portfolio/standards/` and this file
+> Personal standards (voice, badges, AI-use posture) live in `../tjakoen.github.io/standards/` and this file
 > is seeded from `CLAUDE.starter.md`.
 
 ## What this is
 
 BATCH is the **substrate**: server-rendered hypermedia with **no build step** (Bun runs the
 TypeScript directly). It owns rendering (the composition engine + binding vocabulary), HTTP, asset
-serving, the component catalog, the platform runtime, and a framework-generic audit engine. It is
+serving, the platform runtime, and a framework-generic audit engine. (The component catalog moved UP
+to GRAIN — its Human/AI grade toggle is grain's vocabulary.) It is
 **the bottom layer** — grain builds on it, the product builds on grain. BATCH must **extract into
 its own repo as a clean copy**, so it imports *nothing* upward. `README.md` is the usage reference.
 
 ## Start here (reading order)
 
-1. [`../portfolio/PHILOSOPHY.md`](../portfolio/PHILOSOPHY.md) — the *why* beneath the whole stack.
+1. [`../tjakoen.github.io/PHILOSOPHY.md`](../tjakoen.github.io/PHILOSOPHY.md) — the *why* beneath the whole stack.
 2. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — the substrate's reasoning (**single source of
    truth** for the stack: no-build, server-rendered hypermedia, the export, the audit).
 3. [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md) — the **build standard** across the whole stack
@@ -28,7 +29,7 @@ The doc map for the whole monorepo is [`../DOCS.md`](../DOCS.md).
 
 - **Imports nothing inward.** `batch/` must not import from `grain/` or `project/` — it's the
   substrate and has to extract cleanly (SPLIT-PLAN). If you need something from above, **add a port
-  (an interface) and inject the concrete thing at the composition root** (`project/server.ts`);
+  (an interface) and inject the concrete thing at the composition root** (`tjakoen.github.io/server.ts`);
   never reach up.
 - **No-build / native-first governs the *runtime*, not the toolbox.** Two things only: no build step
   (no bundler/transpiler between source and server), and near-zero framework JS shipped to the
@@ -52,7 +53,7 @@ The doc map for the whole monorepo is [`../DOCS.md`](../DOCS.md).
   ignorant of the door/vocabulary — the client-side runtime that uses this lives in grain + the
   composition root.
 - **Tests travel with the code:** colocated `*.test.ts` only — **no app, no e2e** in `batch/`
-  (those live in `project/`). `tsc` + `bun test` green before "done".
+  (those live in `tjakoen.github.io/`, the app). `tsc` + `bun test` green before "done".
 
 ## The meta-lesson (from hardening grain)
 
@@ -72,5 +73,5 @@ Code + colocated unit test(s) for any branching logic + `tsc` and `bun test` gre
 ## Working notes
 
 - Commit/push only when asked; branch off `main` if you must. No AI attribution trailers on commits.
-- Voice for prose in the owner's name: `../portfolio/standards/VOICE.md` (no backticks in prose).
-  README badges/footer: `../portfolio/standards/README-STANDARD.md`.
+- Voice for prose in the owner's name: `../tjakoen.github.io/standards/VOICE.md` (no backticks in prose).
+  README badges/footer: `../tjakoen.github.io/standards/README-STANDARD.md`.
