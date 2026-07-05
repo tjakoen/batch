@@ -192,8 +192,11 @@ function page(pageNav: string, navGroups: string, main: string, inject: CatalogI
 <link rel="stylesheet" href="/styles/grain.css">
 <link rel="stylesheet" href="/components.css">
 <style>
-  body { margin: 0; }
-  .cat { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+  /* semantic tokens so the catalog follows BOTH theme axes (scheme + flavor) — the same
+     data-color-scheme/data-theme the render-blocking theme-boot inject applies from storage,
+     so an embedded catalog matches its host. */
+  body { margin: 0; background: var(--color-bg); color: var(--color-fg); }
+  .cat { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; background: var(--color-bg); }
   .cat-nav { position: sticky; top: 0; align-self: start; height: 100vh; overflow: auto;
     padding: var(--space-6) var(--space-4); border-right: 1px solid var(--color-line); }
   .cat-back { display: inline-flex; align-items: center; margin-bottom: var(--space-4);
