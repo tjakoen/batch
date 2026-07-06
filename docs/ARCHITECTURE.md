@@ -68,8 +68,8 @@ or drop a capability → update this list (`../../CLAUDE.md` alignment table →
   toggle is grain's grade-as-signal vocabulary. It reads the filesystem directly and imports nothing
   from batch; the composition root passes it the page-nav routes. (§13a is retained for the
   Storybook-style generation technique it still uses; ownership is grain's.)
-- **Sitemap + SEO from one source** — one page list feeds `/catalog`, `/sitemap.xml`, `/robots.txt`
-  (§11.4).
+- **Sitemap + SEO/AEO from one source** — one page list feeds `/catalog`, `/sitemap.xml`, `/robots.txt`,
+  and an `/llms.txt` AI-facing index (the AEO counterpart to the sitemap; §11.4).
 - **A framework-generic audit engine** — perf + SEO/AEO baselines via Playwright, vocabulary-agnostic
   so it can bench any app/framework, not just this one (`batch/audit`).
 
@@ -1412,6 +1412,16 @@ export function createSitemap(pagesRoot: string, extraRoutes: () => string[] = (
 `extraRoutes` lets the composition root add routes that don't come from the pages tree — e.g. a
 content engine's collections (MILL's `/notes/:slug` pages) — so the sitemap stays the single list
 of everything the server actually serves. Batch stays ignorant of who provides them.
+
+**`/llms.txt` — the AEO counterpart.** Where `/sitemap.xml` + `/robots.txt` target search engines,
+`/llms.txt` (the [llmstxt.org](https://llmstxt.org) convention) targets AI crawlers: a Markdown index
+of *what this stack is* and *where the canonical docs live*. `batch/http/llms.ts` owns only the format
+— it renders a generic `{title, summary, sections}` structure and knows nothing of the content, exactly
+like `createSitemap` knows nothing of who supplies `extraRoutes`. The composition root supplies the
+curated links (`tjakoen.github.io/llms.ts`, a *projection* of `DOCS.md`, never a fork). Relative link
+paths are absolutized against the request origin — the same idiom `sitemap.xml`/`robots.txt` use — so
+the static export's origin-rewrite bakes in the deploy URL. This is *AI-operable ≈ AI-answerable* made
+literal: the stack that lets an AI *operate* the UI also hands an AI crawler the map to *answer* about it.
 
 ### 11.3 Page transitions (native, cross-document)
 
