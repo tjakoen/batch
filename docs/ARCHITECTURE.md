@@ -446,9 +446,10 @@ coexisting, every component tag and config marker resolved away:
 > **`batch/`** (everything `/framework` describes — the substrate), **`grain/`** (the
 > AI design system — `ai/*`, the `b-*` atoms, `scripts/*`, `styles/grain.css`), and
 > **`project/`** (domain/data/services/routes/view, the product's components + pages +
-> skin, and `server.ts` the composition root). No workspaces — relative imports, one
-> root `package.json` + `tsconfig`. The framework's component scanners now take
-> **multiple component roots** (`grain/components` + `project/components`). The tree
+> skin, and `server.ts` the composition root). **Update (2026-07-05): the composition root
+> folded into `tjakoen.github.io/`** — the app now wires the layers and holds `server.ts`;
+> `project/` is a paused docs-only archive. The framework's component scanners take
+> **multiple component roots** (`grain/components` + `tjakoen.github.io/components`). The tree
 > below still describes BATCH's internals + the conceptual framework/app/frontend
 > split; see `docs/GRAIN.md` for the concern mapping.
 
@@ -2091,7 +2092,7 @@ Built exactly as the audit is (§ generic-engine-in-batch): the framework-generi
 + global `fetch`, knows no vocabulary), and the app-specific **caller** is **`tjakoen.github.io/tools/export.ts`**
 (`bun run export`) — it spawns `tjakoen.github.io/server.ts`, derives the page allowlist from
 `createSitemap()` over **both** `config.pagesDir` and `config.portfolioPagesDir` (so `/grain`,
-`/batch`, `/mill` come along) plus `/catalog`, drops the operable set (`/loop`, `/dashboard`, and the
+`/batch`, `/mill` come along) plus `/catalog`, drops the operable set (`/loop` and the
 retired `/home`), and passes `config.assetDirs` + `config.fontsDir` as asset mounts. The pure
 path/rewrite logic (the only branching) lives in `batch/export/rewrite.ts` with a colocated test.
 
@@ -2109,13 +2110,13 @@ What Tier 1 does:
   a **root** host.
 - **The exportable boundary is enforced, not just documented.** After writing, the engine scans every
   exported page for internal links that resolve to nothing it wrote and **warns, listing them** — so
-  operable surfaces excluded by the caller (`/dashboard`, `/intent`, `/ai/manifest`) surface as a
+  operable surfaces excluded by the caller (`/loop`, `/intent`, `/ai/manifest`) surface as a
   confirmable list instead of shipping as silent dead links. (It also caught a pre-existing broken
   doc-example image in `figure.md` — since fixed to point at a served grain asset.)
 
 Known Tier-1 limitations (honest): the export needs a *server* — opening `dist/index.html` via
 `file://` renders unstyled because every asset ref is root-absolute (that's what hosts need; the
-export log says so); `sitemap.xml` still lists operable routes (`/dashboard`, `/loop`)
+export log says so); `sitemap.xml` still lists the operable `/loop` route
 the static site doesn't include — it's the server's sitemap frozen as-is (projection, not re-render);
 and runtime-constructed URLs in JS (string concat) aren't base-path rewritten. **Tier 2** (true
 prerender of `hx-trigger="load"` targets) remains deferred — build only when a data-backed page must

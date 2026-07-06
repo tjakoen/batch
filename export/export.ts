@@ -183,7 +183,7 @@ export async function exportSite(cfg: ExportConfig): Promise<ExportReport> {
 
   // 4. Enforce the exportable boundary (don't ship broken pages, §18): any internal href/src that
   // points to a route we didn't export is a dead link in the static site — typically an operable
-  // surface the caller intentionally excluded (/dashboard, /intent). Warn, listing them, so the
+  // surface the caller intentionally excluded (/loop, /intent). Warn, listing them, so the
   // operator confirms each is expected rather than an accidental omission. Generic: batch judges
   // resolvability against what it wrote, knowing nothing of which routes are "operable".
   const exportedPages = new Set(cfg.pages);

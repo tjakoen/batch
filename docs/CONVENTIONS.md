@@ -19,20 +19,21 @@ Four concerns, one direction of dependency (each layer builds only on those belo
 ```
 batch/   the no-build hypermedia substrate (render, http, assets, catalog, platform)
    └─ grain/   the design system + optional AI-interaction layer (default theme lives here)
-        ├─ project/    the app — domain, data, services, routes, pages, DOMAIN components, server.ts
-        ├─ mill/       the Markdown→GRAIN CMS (a reusable layer above grain; planned)
-        └─ tjakoen.github.io/  the personal site (a custom BATCH+GRAIN app that uses MILL for content)
+        ├─ mill/       the Markdown→GRAIN CMS (a reusable layer above grain; built)
+        └─ tjakoen.github.io/  THE app + composition root — a custom BATCH+GRAIN site that uses
+                               MILL for content; holds domain components, routes, pages, server.ts
+   (project/   the AI-assistant product — PAUSED since 2026-07-05, a docs-only archive)
 ```
 
 **Hard rules (enforced by review; verified in the audit):**
-- `batch/` imports **nothing** from `grain/` or `project/`. It's the substrate; it must extract cleanly.
+- `batch/` imports **nothing** from `grain/` (or the app). It's the substrate; it must extract cleanly.
 - `grain/` imports **nothing** from `batch/`. It depends only on the **`OpChannel` port**
   (`grain/ai/contract.ts`) — never a concrete substrate. It ships its own default theme.
-- `project/` wires the graph. Cross-layer dependencies are declared as **constructor/factory
-  params**, and the **only place all three meet is `tjakoen.github.io/server.ts`** (the composition root).
+- `tjakoen.github.io/` wires the graph. Cross-layer dependencies are declared as **constructor/factory
+  params**, and the **only place the layers meet is `tjakoen.github.io/server.ts`** (the composition root).
 - New design-system work goes **in `grain/` by default** (it's reusable). Only obviously
-  app-specific things (a one-off page layout, a domain component like `loop-card`) live in
-  `project/`. Test: *"would another product on GRAIN want this?"* → yes = grain, no = project.
+  app-specific things (a one-off page layout, a domain component like `loop-card`) live in the app
+  (`tjakoen.github.io/`). Test: *"would another product on GRAIN want this?"* → yes = grain, no = the app.
 
 A consuming product **re-skins by overriding token slots** in its own sheet linked after
 GRAIN's three (`variables.css` → `global.css` → `grain.css`) — never by editing components.
@@ -120,8 +121,8 @@ contract (the dispatcher) — both are validated server-side by the drift guard 
 ## 4. Components
 
 Each component is a self-contained directory under `grain/components/<layer>/<name>/` (design
-system) or `project/components/<layer>/<name>/` (domain), where layer ∈ atoms / molecules /
-organisms.
+system) or `tjakoen.github.io/components/<layer>/<name>/` (the app's domain components), where
+layer ∈ atoms / molecules / organisms.
 
 ### New-component checklist
 - [ ] `<name>.html` — the template (binding vocabulary below). Header comment: `<!-- <layer>/<name> — … -->`.
@@ -260,8 +261,8 @@ would get its own e2e when grain is extracted.
 
 ## 9. Quick "add a …" recipes
 
-- **A component:** make the dir + the 3–4 files (§4 checklist) in `grain/` (or `project/` if
-  domain-only); use tokens (§5); express AI-mode via the shared idiom; add a `.md` example; if
+- **A component:** make the dir + the 3–4 files (§4 checklist) in `grain/` (or `tjakoen.github.io/`
+  if domain-only); use tokens (§5); express AI-mode via the shared idiom; add a `.md` example; if
   it accepts actions, declare `data-kind`/`data-accepts`. Add a unit/e2e test if it has behavior.
 - **An action/verb:** extend `ActionName` + `ACTIONS` (§3), handle it in the reasoner, reference
   it via the registry; add a unit test (reasoner) + integration test (door path).
