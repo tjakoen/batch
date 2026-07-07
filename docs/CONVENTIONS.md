@@ -233,6 +233,14 @@ would get its own e2e when grain is extracted.
 - **Coverage bar:** anything with branching logic gets a unit test; any new route/door path gets
   an integration test; any new client-JS interaction gets an e2e test. Don't ship an untested
   new path — the client dispatcher and reasoner are load-bearing.
+- **Assert the EFFECT, not the marker.** A test that only checks an attribute flipped, a class was
+  added, or an element exists — but never that the user-visible *result* changed — passes green while
+  the feature is **inert**. That is how the terminal-expand knob shipped dead: the e2e asserted
+  `toHaveAttribute("data-console-expanded", "")` (the marker) while nothing on screen grew (grain
+  lesson 9). For any toggle/animation/layout change, assert the **observable consequence** — geometry,
+  visibility, text, or count actually changed (e.g. main collapses to ~0 and the console fills the
+  space), not that the switch was set. If a mechanism consumes a token/attr, the test must measure the
+  motion or layout it produces. See AUDIT check 12 for the matching mechanical guard.
 
 ---
 
