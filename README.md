@@ -57,7 +57,7 @@ bun run dev            # http://localhost:3000
 
 Open `/loop` and drive the "watch the AI act" demo — a click and an AI decision are the **same
 Intent** through the one door (`POST /intent`), and the reply streams back as render ops over SSE
-(the desk spotlight, the console narration). Navigate `/` ↔ `/about` for the View Transition.
+(the AI spotlight, the console narration). Navigate `/` ↔ `/about` for the View Transition.
 
 ## Deviation from the doc
 

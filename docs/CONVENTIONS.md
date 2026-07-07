@@ -241,6 +241,13 @@ would get its own e2e when grain is extracted.
   visibility, text, or count actually changed (e.g. main collapses to ~0 and the console fills the
   space), not that the switch was set. If a mechanism consumes a token/attr, the test must measure the
   motion or layout it produces. See AUDIT check 12 for the matching mechanical guard.
+- **Visual regression baseline** (`tjakoen.github.io/e2e/visual.e2e.ts`): the behavior specs assert what a
+  screen *does*; they don't catch a shifted margin, a dropped border, or a broken grid. `toHaveScreenshot`
+  pins the pixels of the key **static** screens (welcome, `/loop` idle, `/grain`, `/batch`, `/catalog`,
+  `/about`) so a silent visual regression fails loudly. Baselines are committed
+  (`visual.e2e.ts-snapshots/`, per-OS) and CSS animation is frozen at capture; only deterministic
+  screens qualify (mid-run/typing states are non-deterministic — leave those to `bun run shots`).
+  After an **intentional** visual change, re-bless: `bun run test:e2e visual --update-snapshots`.
 
 ---
 
