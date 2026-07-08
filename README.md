@@ -1,4 +1,4 @@
-# BATCH — the substrate
+# 🥖 BATCH — the substrate
 
 [![Made with Claude](https://img.shields.io/badge/Made_with-Claude-D97757?logo=anthropic&logoColor=white)](https://tjakoen.github.io/notes/ten-times-zero)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache_2.0-blue)](LICENSE)
@@ -64,3 +64,9 @@ Intent** through the one door (`POST /intent`), and the reply streams back as re
 `tsconfig.json` needs `allowImportingTsExtensions: true` for `tsc` to accept the
 `.ts`-extension imports the architecture mandates — the doc's recommended-flags
 list omits it.
+
+---
+
+🤖 **Built with Claude, no bundler required.** I made the calls, it did the typing, and the whole
+"build step" is still just Bun running the file. **I don't prompt and pray, I prompt and prove.**
+[How I actually work with AI, receipts and all →](https://tjakoen.github.io/notes/ten-times-zero)
