@@ -3,7 +3,9 @@ import { createRenderer } from "./render.ts";
 
 // BATCH tests its engine with its OWN fixtures (no dependency on grain/project) —
 // x-list (each → x-item via data-field), x-link (data-bound URL attr), x-badge.
-const FIXTURES = "./batch/render/__fixtures__";
+// File-relative (not cwd-relative) so it resolves both in the monorepo and after the
+// split, when batch/ becomes the repo root (SPLIT-PLAN.md).
+const FIXTURES = import.meta.dir + "/__fixtures__";
 const r = createRenderer({ componentsDir: FIXTURES, missing: "ignore" });
 
 test("escapes hostile text", async () => {
