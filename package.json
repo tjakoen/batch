@@ -7,7 +7,6 @@
   "author": "Tjakoen Stolk <tjakoen.s@gmail.com> (https://tjakoen.github.io)",
   "homepage": "https://tjakoen.github.io/batch",
   "exports": {
-    "./docs/*": "./docs/*",
     "./http/*": "./http/*",
     "./render/*": "./render/*",
     "./platform/*": "./platform/*",
@@ -20,7 +19,6 @@
     "assets",
     "audit",
     "catalog",
-    "docs",
     "export",
     "http",
     "platform",

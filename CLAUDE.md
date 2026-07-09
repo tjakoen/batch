@@ -19,12 +19,13 @@ its own repo as a clean copy**, so it imports *nothing* upward. `README.md` is t
 ## Start here (reading order)
 
 1. [`../tjakoen.github.io/PHILOSOPHY.md`](../tjakoen.github.io/PHILOSOPHY.md) — the *why* beneath the whole stack.
-2. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — the substrate's reasoning (**single source of
-   truth** for the stack: no-build, server-rendered hypermedia, the export, the audit).
-3. [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md) — the **build standard** across the whole stack
-   (layering, TypeScript, components, tokens, the action vocabulary, the 3-tier testing bar).
+2. [ARCHITECTURE](https://tjakoen.github.io/batch/docs/architecture) — the substrate's reasoning
+   (**single source of truth** for the stack: no-build, server-rendered hypermedia, the export, the
+   audit). Canonically homed in the portfolio repo (`tjakoen.github.io/docs/batch/`), rendered via MILL.
+3. [CONVENTIONS](https://tjakoen.github.io/batch/docs/conventions) — the **build standard** across the
+   whole stack (layering, TypeScript, components, tokens, the action vocabulary, the 3-tier testing bar).
 
-The doc map for the whole monorepo is [`../DOCS.md`](../DOCS.md).
+The published docs home for the whole stack is <https://tjakoen.github.io>.
 
 ## Non-negotiables
 
@@ -69,7 +70,8 @@ clarity, not just the operator's — read the signal and harden the contract.
 ## Definition of done
 
 Code + colocated unit test(s) for any branching logic + `tsc` and `bun test` green + docs synced
-(`docs/ARCHITECTURE.md` / `docs/CONVENTIONS.md` when behavior changes) + a memory if a decision was made.
+(the canonical docs now live in `tjakoen.github.io/docs/batch/` — update them there when behavior
+changes) + a memory if a decision was made.
 
 ## Working notes
 

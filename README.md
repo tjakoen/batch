@@ -12,10 +12,15 @@ htmx for reads/nav, one `/intent` door for writes) — lives in
 
 **GRAIN** (the design system) and **MILL** (the content engine) build on top of BATCH; the product
 and the portfolio consume the whole stack. → the *why*: [`../tjakoen.github.io/PHILOSOPHY.md`](../tjakoen.github.io/PHILOSOPHY.md) · the full
-reasoning (SSOT): [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · the build rules:
-[`docs/CONVENTIONS.md`](docs/CONVENTIONS.md).
+reasoning (SSOT): [ARCHITECTURE](https://tjakoen.github.io/batch/docs/architecture) · the build rules:
+[CONVENTIONS](https://tjakoen.github.io/batch/docs/conventions).
 
-**What BATCH gives you** (the full, tiered list is the source in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) §"What BATCH gives you"):
+> **Docs live at [tjakoen.github.io/batch/docs](https://tjakoen.github.io/batch/docs).** BATCH's
+> explanatory docs are canonically homed in the portfolio repo (`tjakoen.github.io/docs/batch/`) and
+> rendered there through MILL. This repo keeps its code, PLAN, and this README; it no longer ships a
+> `docs/` folder.
+
+**What BATCH gives you** (the full, tiered list is the source in [ARCHITECTURE](https://tjakoen.github.io/batch/docs/architecture) §"What BATCH gives you"):
 
 - **Hero:** no build step (Bun runs the TS; even client `.ts` is transpiled on request, no bundler) ·
   static export as a *projection* of the running server (never a second renderer).
