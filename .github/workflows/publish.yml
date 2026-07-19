@@ -1,0 +1,41 @@
+name: Publish package
+
+# Publishes @tjakoen/batch to GitHub Packages when its version changes. Bump the version in
+# package.json and push to main: this publishes it and skips a version already on the registry
+# (so ordinary commits are a no-op).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com
+          scope: '@tjakoen'
+      - name: Publish if the version is new
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          v=$(node -p "require('./package.json').version")
+          if npm view "@tjakoen/batch@$v" version >/dev/null 2>&1; then
+            echo "@tjakoen/batch@$v already published — skipping"
+          else
+            echo "Publishing @tjakoen/batch@$v"
+            npm publish
+          fi
