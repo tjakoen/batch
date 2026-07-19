@@ -6,6 +6,13 @@
   "license": "Apache-2.0",
   "author": "Tjakoen Stolk <tjakoen.s@gmail.com> (https://tjakoen.github.io)",
   "homepage": "https://tjakoen.github.io/batch",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tjakoen/batch.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "exports": {
     "./http/*": "./http/*",
     "./render/*": "./render/*",
