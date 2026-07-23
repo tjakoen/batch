@@ -8,17 +8,21 @@ hypermedia substrate. This directory is BATCH itself: the composition engine, HT
 and the audit engine. (The component catalog moved up to GRAIN — `grain/catalog`.) The app that
 proves it out — a personal site with a `/loop` "watch the AI act" demo (server-rendered HTML,
 htmx for reads/nav, one `/intent` door for writes) — lives in
-[`../tjakoen.github.io/`](../tjakoen.github.io/), the composition root that wires the stack together.
+[tjakoen.github.io](https://github.com/tjakoen/tjakoen.github.io), the composition root that wires
+the stack together.
 
 **GRAIN** (the design system) and **MILL** (the content engine) build on top of BATCH; the product
-and the portfolio consume the whole stack. → the *why*: [`../tjakoen.github.io/PHILOSOPHY.md`](../tjakoen.github.io/PHILOSOPHY.md) · the full
+and the portfolio consume the whole stack. → the *why*: [PHILOSOPHY.md](https://github.com/tjakoen/tjakoen.github.io/blob/main/docs/PHILOSOPHY.md) · the full
 reasoning (SSOT): [ARCHITECTURE](https://tjakoen.github.io/batch/docs/architecture) · the build rules:
-[CONVENTIONS](https://tjakoen.github.io/batch/docs/conventions).
+[CONVENTIONS](https://tjakoen.github.io/batch/docs/conventions) · where BATCH sits in the wider
+stack: [bread](https://github.com/tjakoen/bread).
 
-> **Docs live at [tjakoen.github.io/batch/docs](https://tjakoen.github.io/batch/docs).** BATCH's
-> explanatory docs are canonically homed in the portfolio repo (`tjakoen.github.io/docs/batch/`) and
-> rendered there through MILL. This repo keeps its code, PLAN, and this README; it no longer ships a
-> `docs/` folder.
+**Landing:** [tjakoen.github.io/batch](https://tjakoen.github.io/batch/) · **Docs:**
+[tjakoen.github.io/batch/docs](https://tjakoen.github.io/batch/docs).
+
+> BATCH's explanatory docs are canonically homed in the portfolio repo (`tjakoen.github.io/docs/batch/`)
+> and rendered there through MILL. This repo keeps its code, PLAN, and this README; it no longer
+> ships a `docs/` folder.
 
 **What BATCH gives you** (the full, tiered list is the source in [ARCHITECTURE](https://tjakoen.github.io/batch/docs/architecture) §"What BATCH gives you"):
 
@@ -31,15 +35,11 @@ reasoning (SSOT): [ARCHITECTURE](https://tjakoen.github.io/batch/docs/architectu
 ## Run
 
 ```sh
-bun install            # or: npm install (bun came in via npm here)
+bun install
 bun run dev            # http://localhost:3000  (hot reload)
 bun test               # unit + integration
 bun run check          # tsc, erasable-only
 ```
-
-> Bun is vendored under `node_modules` (GitHub was unreachable, so it was
-> installed from the npm registry). Invoke as `./node_modules/.bin/bun` if it
-> isn't on PATH.
 
 ## What it shows
 
@@ -72,6 +72,5 @@ list omits it.
 
 ---
 
-🤖 **Built with Claude, no bundler required.** I made the calls, it did the typing, and the whole
-"build step" is still just Bun running the file. **I don't prompt and pray, I prompt and prove.**
-[How I actually work with AI, receipts and all →](https://tjakoen.github.io/notes/ten-times-zero)
+🤖 **Built with Claude. I don't prompt and pray, I prompt and prove.** Every commit here is
+co-authored with an AI, on purpose. [How I actually work with AI, receipts and all →](https://tjakoen.github.io/notes/ten-times-zero)
