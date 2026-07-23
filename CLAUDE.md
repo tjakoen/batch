@@ -18,7 +18,7 @@ its own repo as a clean copy**, so it imports *nothing* upward. `README.md` is t
 
 ## Start here (reading order)
 
-1. [`../tjakoen.github.io/PHILOSOPHY.md`](../tjakoen.github.io/PHILOSOPHY.md) — the *why* beneath the whole stack.
+1. [`PHILOSOPHY.md`](https://github.com/tjakoen/tjakoen.github.io/blob/main/docs/PHILOSOPHY.md) — the *why* beneath the whole stack.
 2. [ARCHITECTURE](https://tjakoen.github.io/batch/docs/architecture) — the substrate's reasoning
    (**single source of truth** for the stack: no-build, server-rendered hypermedia, the export, the
    audit). Canonically homed in the portfolio repo (`tjakoen.github.io/docs/batch/`), rendered via MILL.
