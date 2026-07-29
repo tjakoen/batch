@@ -6,8 +6,8 @@
 **B**un · **A**ddressable · **T**ypeScript · **C**SS · **H**tmx — a no-build, server-rendered
 hypermedia substrate. This directory is BATCH itself: the composition engine, HTTP/asset helpers,
 and the audit engine. (The component catalog moved up to GRAIN — `grain/catalog`.) The app that
-proves it out — a personal site with a `/loop` "watch the AI act" demo (server-rendered HTML,
-htmx for reads/nav, one `/intent` door for writes) — lives in
+proves it out — a personal site whose home route `/` is a live desk you can watch the AI act on
+(server-rendered HTML, htmx for reads/nav, one `/intent` door for writes) — lives in
 [tjakoen.github.io](https://github.com/tjakoen/tjakoen.github.io), the composition root that wires
 the stack together.
 
@@ -32,14 +32,19 @@ stack: [bread](https://github.com/tjakoen/bread).
   one source · a framework-generic perf + SEO/AEO audit engine. (The `/catalog` component browser
   moved up to GRAIN — `grain/catalog`.)
 
-## Run
+## Develop
+
+BATCH is a library — it has no server of its own. To work on the package:
 
 ```sh
 bun install
-bun run dev            # http://localhost:3000  (hot reload)
 bun test               # unit + integration
 bun run check          # tsc, erasable-only
 ```
+
+To see it composed and running, use the composition root
+([tjakoen.github.io](https://github.com/tjakoen/tjakoen.github.io)), which wires BATCH + GRAIN + MILL
+and serves the live site.
 
 ## What it shows
 
@@ -54,15 +59,13 @@ bun run check          # tsc, erasable-only
 - **Client `.ts` with no bundler** — modules served to the browser are transpiled on request behind a client-safe guard (no `node:`/secrets), so a static-style page ships typed JS with no build.
 - **One write path** — all mutation flows through GRAIN's single door (`POST /intent` → render ops over SSE), not a separate CRUD API. BATCH just provides the generic SSE hub; the vocabulary lives in `grain/ai/*`.
 
-## Try it
+## See it running
 
-```sh
-bun run dev            # http://localhost:3000
-```
-
-Open `/loop` and drive the "watch the AI act" demo — a click and an AI decision are the **same
-Intent** through the one door (`POST /intent`), and the reply streams back as render ops over SSE
-(the AI spotlight, the console narration). Navigate `/` ↔ `/about` for the View Transition.
+BATCH ships no server, so the `/intent` + SSE door runs from the composition root. Clone
+[tjakoen.github.io](https://github.com/tjakoen/tjakoen.github.io) and `bun run dev` there, then open
+`/`: the home route is a live desk where a click and an AI decision are the **same Intent** through
+the one door (`POST /intent`), and the reply streams back as render ops over SSE (the AI spotlight,
+the console narration). Navigate `/` ↔ `/about` for the View Transition.
 
 ## Deviation from the doc
 

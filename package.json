@@ -19,13 +19,11 @@
     "./platform/*": "./platform/*",
     "./export/*": "./export/*",
     "./audit/*": "./audit/*",
-    "./catalog/*": "./catalog/*",
     "./assets/*": "./assets/*"
   },
   "files": [
     "assets",
     "audit",
-    "catalog",
     "export",
     "http",
     "platform",
