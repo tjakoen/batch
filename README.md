@@ -1,13 +1,13 @@
-# 🥖 BATCH — the substrate
+# 🥖 BATCH: the substrate
 
 [![Made with Claude](https://img.shields.io/badge/Made_with-Claude-D97757?logo=anthropic&logoColor=white)](https://tjakoen.github.io/notes/ten-times-zero)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache_2.0-blue)](LICENSE)
 
-**B**un · **A**ddressable · **T**ypeScript · **C**SS · **H**tmx — a no-build, server-rendered
+**B**un · **A**ddressable · **T**ypeScript · **C**SS · **H**tmx: a no-build, server-rendered
 hypermedia substrate. This directory is BATCH itself: the composition engine, HTTP/asset helpers,
-and the audit engine. (The component catalog moved up to GRAIN — `grain/catalog`.) The app that
-proves it out — a personal site whose home route `/` is a live desk you can watch the AI act on
-(server-rendered HTML, htmx for reads/nav, one `/intent` door for writes) — lives in
+and the audit engine. (The component catalog moved up to GRAIN, `grain/catalog`.) The app that
+proves it out, a personal site whose home route `/` is a live desk you can watch the AI act on
+(server-rendered HTML, htmx for reads/nav, one `/intent` door for writes), lives in
 [tjakoen.github.io](https://github.com/tjakoen/tjakoen.github.io), the composition root that wires
 the stack together.
 
@@ -30,11 +30,11 @@ stack: [bread](https://github.com/tjakoen/bread).
   static export as a *projection* of the running server (never a second renderer).
 - **Also:** the composition engine (zero runtime deps) · a generic SSE push hub · sitemap/SEO from
   one source · a framework-generic perf + SEO/AEO audit engine. (The `/catalog` component browser
-  moved up to GRAIN — `grain/catalog`.)
+  moved up to GRAIN, `grain/catalog`.)
 
 ## Develop
 
-BATCH is a library — it has no server of its own. To work on the package:
+BATCH is a library: it has no server of its own. To work on the package:
 
 ```sh
 bun install
@@ -48,16 +48,16 @@ and serves the live site.
 
 ## What it shows
 
-- **One folder per component** — `<components-root>/<level>/<name>/<name>.{html,css}` (atoms → molecules → organisms), CSS co-located with its template. The roots are wired by the consumer (`tjakoen.github.io/config.ts`; in this monorepo the components live in `grain/components` + `tjakoen.github.io/components`).
-- **Flat-file pages** — `<pages-root>/about.html` → `/about` (here: `tjakoen.github.io/pages`); folders only group subpages. URL mirrors the tree. Minimal JS sits in a `<script>` after the UI.
-- **Pages compose components** — rendered through the engine (`renderPage`), so they use atomic tags. Raw HTML belongs inside a component's own `.html`, never in a page.
-- **Sitemap + SEO** — `/catalog` sidebar lists Pages (site map) + Components; the same page list feeds `/sitemap.xml` and `/robots.txt`. Add a page → it appears in all three.
-- **Tokens live up in GRAIN** (`grain/styles`) — BATCH ships the *mechanism*, not a theme: it bundles each component's co-located CSS into `/components.css` at request time, no build step.
-- **Animated navigation** — native CSS cross-document View Transitions (`@view-transition { navigation: auto }`); plain `<a href>` loads animate, no client router. Navigate `/` ↔ `/about` to see it (Chromium). Honours `prefers-reduced-motion`.
-- **Component catalog** at `/catalog` — Storybook-style, generated server-side from each component's co-located `<name>.md`. Live render + copyable source + side nav. No build, no deps. Vanilla CSS: **one class per element**, variants as attributes (`.btn[data-variant="soft"]`); pseudo-states forced via `data-force`. Two-layer tokens (primitives → semantic) — change a primitive, every panel restyles.
-- **Polymorphic atoms** — one `b-text` renders `h2`/`h3`; one `b-button` for all variants.
-- **Client `.ts` with no bundler** — modules served to the browser are transpiled on request behind a client-safe guard (no `node:`/secrets), so a static-style page ships typed JS with no build.
-- **One write path** — all mutation flows through GRAIN's single door (`POST /intent` → render ops over SSE), not a separate CRUD API. BATCH just provides the generic SSE hub; the vocabulary lives in `grain/ai/*`.
+- **One folder per component**: `<components-root>/<level>/<name>/<name>.{html,css}` (atoms → molecules → organisms), CSS co-located with its template. The roots are wired by the consumer (`tjakoen.github.io/config.ts`; in this monorepo the components live in `grain/components` + `tjakoen.github.io/components`).
+- **Flat-file pages**: `<pages-root>/about.html` → `/about` (here: `tjakoen.github.io/pages`); folders only group subpages. URL mirrors the tree. Minimal JS sits in a `<script>` after the UI.
+- **Pages compose components**: rendered through the engine (`renderPage`), so they use atomic tags. Raw HTML belongs inside a component's own `.html`, never in a page.
+- **Sitemap + SEO**: `/catalog` sidebar lists Pages (site map) + Components; the same page list feeds `/sitemap.xml` and `/robots.txt`. Add a page → it appears in all three.
+- **Tokens live up in GRAIN** (`grain/styles`). BATCH ships the *mechanism*, not a theme: it bundles each component's co-located CSS into `/components.css` at request time, no build step.
+- **Animated navigation**: native CSS cross-document View Transitions (`@view-transition { navigation: auto }`); plain `<a href>` loads animate, no client router. Navigate `/` ↔ `/about` to see it (Chromium). Honours `prefers-reduced-motion`.
+- **Component catalog** at `/catalog`: Storybook-style, generated server-side from each component's co-located `<name>.md`. Live render + copyable source + side nav. No build, no deps. Vanilla CSS: **one class per element**, variants as attributes (`.btn[data-variant="soft"]`); pseudo-states forced via `data-force`. Two-layer tokens (primitives → semantic): change a primitive, every panel restyles.
+- **Polymorphic atoms**: one `b-text` renders `h2`/`h3`; one `b-button` for all variants.
+- **Client `.ts` with no bundler**: modules served to the browser are transpiled on request behind a client-safe guard (no `node:`/secrets), so a static-style page ships typed JS with no build.
+- **One write path**: all mutation flows through GRAIN's single door (`POST /intent` → render ops over SSE), not a separate CRUD API. BATCH just provides the generic SSE hub; the vocabulary lives in `grain/ai/*`.
 
 ## See it running
 
@@ -70,7 +70,7 @@ the console narration). Navigate `/` ↔ `/about` for the View Transition.
 ## Deviation from the doc
 
 `tsconfig.json` needs `allowImportingTsExtensions: true` for `tsc` to accept the
-`.ts`-extension imports the architecture mandates — the doc's recommended-flags
+`.ts`-extension imports the architecture mandates. The doc's recommended-flags
 list omits it.
 
 ---
