@@ -1,8 +1,15 @@
 name: Publish package
 
-# Publishes @tjakoen/batch to GitHub Packages when its version changes. Bump the version in
-# package.json and push to main: this publishes it and skips a version already on the registry
+# Publishes @tjakoen/batch to the PUBLIC npm registry when its version changes. Bump the version
+# in package.json and push to main: this publishes it and skips a version already on the registry
 # (so ordinary commits are a no-op).
+#
+# Needs an NPM_TOKEN repo secret: a granular npmjs token with read+write on @tjakoen/* and
+# "Bypass 2FA" ticked (the account's 2FA is a passkey, so there is no OTP to supply).
+#
+# Every npm call passes --@tjakoen:registry explicitly. A scope mapping in an ambient .npmrc
+# beats both publishConfig and --registry, so without it a stray mapping silently retargets
+# this job at another registry (and `npm view` then reports that registry's versions).
 
 on:
   push:
@@ -11,7 +18,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 concurrency:
   group: publish
@@ -25,17 +31,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          registry-url: https://npm.pkg.github.com
+          registry-url: https://registry.npmjs.org
           scope: '@tjakoen'
       - name: Publish if the version is new
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -euo pipefail
+          reg=--@tjakoen:registry=https://registry.npmjs.org
           v=$(node -p "require('./package.json').version")
-          if npm view "@tjakoen/batch@$v" version >/dev/null 2>&1; then
+          if npm view "$reg" "@tjakoen/batch@$v" version >/dev/null 2>&1; then
             echo "@tjakoen/batch@$v already published — skipping"
           else
             echo "Publishing @tjakoen/batch@$v"
-            npm publish
+            npm publish "$reg" --access public
           fi
