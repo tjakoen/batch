@@ -1,6 +1,6 @@
 {
   "name": "@tjakoen/batch",
-  "version": "0.1.1-oidc.0",
+  "version": "0.1.0",
   "description": "BATCH — a no-build, server-rendered hypermedia substrate (Bun · Addressable · TypeScript · CSS · htmx).",
   "type": "module",
   "license": "Apache-2.0",
