@@ -58,6 +58,14 @@ jobs:
           if npm view "$reg" "@tjakoen/batch@$v" version >/dev/null 2>&1; then
             echo "@tjakoen/batch@$v already published — skipping"
           else
-            echo "Publishing @tjakoen/batch@$v"
-            npm publish "$reg" --access public --provenance
+            # npm tags a publish `latest` by DEFAULT, prerelease or not — so publishing
+            # 0.1.1-rc.0 without --tag would hand it to everyone running a bare
+            # `npm install @tjakoen/batch`. Route any prerelease to a tag named after its
+            # own identifier (0.1.1-rc.0 -> "rc") so `latest` only ever moves on a real release.
+            tag=latest
+            case "$v" in
+              *-*) id=${v#*-}; id=${id%%.*}; tag=${id:-next} ;;
+            esac
+            echo "Publishing @tjakoen/batch@$v under dist-tag '$tag'"
+            npm publish "$reg" --access public --provenance --tag "$tag"
           fi
