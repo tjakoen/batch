@@ -3,7 +3,15 @@ import { readdirSync } from "fs";
 import { join } from "path";
 
 export type MissingMode = "ignore" | "warn" | "throw";
-export interface RenderConfig { componentsDir: string | string[]; missing: MissingMode; }
+export interface RenderConfig {
+  componentsDir?: string | string[];
+  // component name (e.g. "b-button") → template SOURCE text. Lets a consumer
+  // supply templates directly instead of the readdirSync directory walk — a
+  // Bun `--compile` binary has no real filesystem to walk, so this is how a
+  // compiled consumer feeds in components it embedded at build time.
+  templates?: Record<string, string>;
+  missing: MissingMode;
+}
 
 interface Resolved { found: boolean; value: unknown; }
 function resolvePath(obj: any, path: string): Resolved {
@@ -36,7 +44,9 @@ function safeAttr(attr: string, value: string): string {
 }
 
 export function createRenderer(config: RenderConfig) {
-  const registry = new Map<string, string>();
+  // path: on disk, discovered by readdirSync. source: inline template text, supplied
+  // via `templates`. Exactly one is set per entry.
+  const registry = new Map<string, { path?: string; source?: string }>();
   const cache = new Map<string, { html: string; bindAttrs: string[] }>();
   let names: string[] = [];
   let selfCloseRe: RegExp | null = null;   // rebuilt on refresh() (names change only then)
@@ -47,13 +57,20 @@ export function createRenderer(config: RenderConfig) {
       if (e.isDirectory()) discover(full);
       else if (e.name.endsWith(".html")) {
         const n = e.name.slice(0, -5);
-        if (n.includes("-")) registry.set(n, full);   // hyphenated = component
+        if (n.includes("-")) registry.set(n, { path: full });   // hyphenated = component
       }
     }
   }
   function refresh() {
     registry.clear(); cache.clear();
-    for (const root of ([] as string[]).concat(config.componentsDir)) discover(root);   // one or many roots
+    if (config.componentsDir) {
+      for (const root of ([] as string[]).concat(config.componentsDir)) discover(root);   // one or many roots
+    }
+    if (config.templates) {
+      for (const [n, source] of Object.entries(config.templates)) {
+        if (n.includes("-")) registry.set(n, { source });   // hyphenated = component; explicit wins over discovered
+      }
+    }
     names = [...registry.keys()];
     selfCloseRe = names.length ? new RegExp(`<(${names.join("|")})((?:\\s[^>]*?)?)\\s*/>`, "g") : null;
   }
@@ -67,9 +84,9 @@ export function createRenderer(config: RenderConfig) {
   async function template(name: string): Promise<{ html: string; bindAttrs: string[] }> {
     const hit = cache.get(name);
     if (hit) return hit;
-    const path = registry.get(name);
-    if (!path) throw new Error(`Component not found: <${name}>`);
-    const html = await Bun.file(path).text();          // platform seam
+    const entry = registry.get(name);
+    if (!entry) throw new Error(`Component not found: <${name}>`);
+    const html = entry.source !== undefined ? entry.source : await Bun.file(entry.path!).text();   // platform seam
     const bindAttrs = [...new Set([...html.matchAll(/data-bind-([\w-]+)=/g)].map(m => m[1]))];
     const tpl = { html, bindAttrs };
     cache.set(name, tpl);

@@ -29,3 +29,36 @@ test("strict mode catches a binding the data does not provide", async () => {
   await expect(strict.render("x-badge", { lbel: "typo" }))
     .rejects.toThrow(/unknown binding "label"/);
 });
+
+test("templates-only construction (no componentsDir) renders a component", async () => {
+  const inline = createRenderer({
+    templates: { "x-badge": `<span data-field="label"></span>` },
+    missing: "ignore",
+  });
+  const out = await inline.render("x-badge", { label: "hi" });
+  expect(out).toContain("hi");
+});
+
+test("an explicit template wins over a discovered file of the same name", async () => {
+  const both = createRenderer({
+    componentsDir: FIXTURES,
+    templates: { "x-badge": `<span data-field="label">explicit</span>` },
+    missing: "ignore",
+  });
+  const out = await both.render("x-badge", { label: "hi" });
+  expect(out).toContain("hi");
+  expect(out).not.toContain(">b<");   // "b" is the fixture file's hardcoded default text
+});
+
+test("a self-closing tag resolves when the component came from templates", async () => {
+  const inline = createRenderer({
+    templates: {
+      "x-badge": `<span data-field="label"></span>`,
+      "x-page": `<div><x-badge /></div>`,
+    },
+    missing: "ignore",
+  });
+  const out = await inline.render("x-page", { label: "hi" });
+  expect(out).toContain("<span");
+  expect(out).toContain("hi");
+});
