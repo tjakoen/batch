@@ -147,7 +147,6 @@ export function renderTables(report: AuditReport, selectorLabels: string[] = [])
     return `| \`${p.path}\` | ${pf.ttfbMs}ms | ${pf.loadMs}ms | ${kb(pf.wireBytes)} | **${kb(pf.jsBytes)}** | ${pf.requests} | ${d.renderBlockingCss}css/${d.renderBlockingJs}js | ` +
       `${mark(!!d.title)} | ${mark(!!d.metaDescription)} | ${mark(!!d.canonical)} | ${mark(d.og.length > 0)} | ${mark(d.h1Count === 1)} | ${mark(d.jsonLd.length > 0)} |${sel}`;
   }).join("\n");
-  const epLines = Object.entries(report.endpoints).map(([e, s]) => `- ${endpointLine(e, s)}`).join("\n");
   return `| Page | TTFB | Load | Wire | JS | Req | Blocking | Title | Desc | Canon | OG | 1×H1 | JSON-LD |${selCols}\n` +
     `|------|------|------|------|----|-----|----------|:-----:|:----:|:-----:|:--:|:----:|:-------:|${selDivs}\n` +
     `${rows}`;

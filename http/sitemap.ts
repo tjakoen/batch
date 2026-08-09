@@ -1,11 +1,11 @@
-// /framework/http/sitemap.ts — derive the site's page routes from the pages/ tree.
+// batch/http/sitemap.ts — derive the site's page routes from the pages/ tree.
 // One source of truth, reused three ways: the catalog's Pages nav, /sitemap.xml,
 // and /robots.txt. Mirrors the page-routing convention in pages.ts.
 // `extraRoutes` lets the composition root add routes that don't come from the pages
 // tree (e.g. a content engine's collections) — generic strings, batch stays ignorant
 // of who provides them.
-import { readdirSync } from "fs";
-import { join, relative, sep } from "path";
+import { readdirSync } from "node:fs";
+import { join, relative, sep } from "node:path";
 
 export function createSitemap(pagesRoot: string, extraRoutes: () => string[] = () => []) {
   let cache: string[] | null = null;

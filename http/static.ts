@@ -1,6 +1,6 @@
-// /framework/http/static.ts — generic static serving; root is INJECTED
+// batch/http/static.ts — generic static serving; root is INJECTED
 import type { Runtime } from "../platform/runtime.ts";
-import { join, normalize, resolve, sep } from "path";
+import { join, normalize, resolve, sep } from "node:path";
 
 export function makeStatic(rt: Runtime, root: string) {
   const ROOT = resolve(root);                            // absolute → traversal guard is reliable

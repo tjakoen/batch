@@ -1,4 +1,4 @@
-// /framework/http/stream.ts — generic per-session SSE hub. ZERO app knowledge.
+// batch/http/stream.ts — generic per-session SSE hub. ZERO app knowledge.
 //
 // Server-Sent Events let the server PUSH to the browser without a refresh. htmx is
 // client-initiated (request→swap); this is the additive piece that lets work the

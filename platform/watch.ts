@@ -1,5 +1,5 @@
-// /framework/platform/watch.ts — dev hot-reload watcher
-import { watch } from "fs";
+// batch/platform/watch.ts — dev hot-reload watcher
+import { watch } from "node:fs";
 
 // Fires on .html (templates), .css (co-located styles), .md (catalog docs) edits.
 export function watchComponents(dir: string, onChange: () => void): void {

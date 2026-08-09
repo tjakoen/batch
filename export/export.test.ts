@@ -1,7 +1,7 @@
 // batch/export/export.test.ts — the crawl+write engine against a throwaway in-process server.
 // No product coupling: a 20-line Bun.serve stands in for "a running BATCH app". Uses only bun + fs.
 import { expect, test, describe, beforeAll, afterAll } from "bun:test";
-import { mkdtemp, mkdir, readFile, rm, writeFile, stat } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, writeFile, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { exportSite } from "./export.ts";

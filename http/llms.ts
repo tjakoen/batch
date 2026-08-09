@@ -1,4 +1,4 @@
-// /framework/http/llms.ts — render an /llms.txt (the llmstxt.org convention): a Markdown index
+// batch/http/llms.ts — render an /llms.txt (the llmstxt.org convention): a Markdown index
 // an AI crawler reads to learn what a site IS and where its canonical docs live. The AI-facing
 // counterpart to /sitemap.xml + /robots.txt (which target search engines), served the same way.
 //

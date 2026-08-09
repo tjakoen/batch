@@ -1,6 +1,6 @@
-// /framework/render/render.ts — generic composition engine (createRenderer)
-import { readdirSync } from "fs";
-import { join } from "path";
+// batch/render/render.ts — generic composition engine (createRenderer)
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
 
 export type MissingMode = "ignore" | "warn" | "throw";
 export interface RenderConfig {

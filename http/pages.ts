@@ -1,4 +1,4 @@
-// /framework/http/pages.ts — page routing over makeStatic.
+// batch/http/pages.ts — page routing over makeStatic.
 //   A page is a flat file; folders only group a page with its subpages.
 //     /                 → pages/index.html        (entrance)
 //     /home             → pages/home.html         (flat page)
@@ -8,7 +8,7 @@
 //
 // A page's .html is run through the composition engine (renderPage) so pages can
 // COMPOSE atomic component tags (<b-button>, <work-card>, …) instead of raw markup.
-import { extname, join } from "path";
+import { extname, join } from "node:path";
 import type { Runtime } from "../platform/runtime.ts";
 import { makeStatic } from "./static.ts";
 

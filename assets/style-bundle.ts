@@ -1,7 +1,7 @@
-// /framework/assets/style-bundle.ts — concatenate every component's co-located
+// batch/assets/style-bundle.ts — concatenate every component's co-located
 // .css into one cached bundle. No build step: read once, cache, refresh on change.
-import { readdirSync } from "fs";
-import { join } from "path";
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
 import type { Runtime } from "../platform/runtime.ts";
 
 export function createStyleBundle(rt: Runtime, componentsDir: string | string[]) {

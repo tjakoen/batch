@@ -56,7 +56,6 @@ export interface ExportReport {
 }
 
 // Text extensions get a base-path rewrite; everything else (fonts, images) is copied byte-for-byte.
-const TEXT_EXT = new Set([".html", ".htm", ".css", ".js", ".mjs", ".json", ".svg", ".txt", ".xml"]);
 const isTest = (name: string) => /\.test\.[cm]?[jt]sx?$/.test(name);
 
 async function fetchText(url: string): Promise<{ status: number; body: string }> {

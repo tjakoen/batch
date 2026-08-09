@@ -24,7 +24,7 @@
 // In short: /modules is for static-style pages and self-contained logic. Anything needing a server or
 // holding sensitive data stays server-side.
 import type { Runtime } from "../platform/runtime.ts";
-import { extname, join, resolve, sep } from "path";
+import { extname, join, resolve, sep } from "node:path";
 
 const CLIENT_EXT = new Set([".ts", ".tsx", ".mts", ".js", ".mjs"]);
 
