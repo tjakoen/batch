@@ -48,7 +48,7 @@ and serves the live site.
 
 ## What it shows
 
-- **One folder per component**: `<components-root>/<level>/<name>/<name>.{html,css}` (atoms → molecules → organisms), CSS co-located with its template. The roots are wired by the consumer (`tjakoen.github.io/config.ts`; in this monorepo the components live in `grain/components` + `tjakoen.github.io/components`).
+- **One folder per component**: `<components-root>/<level>/<name>/<name>.{html,css}` (atoms → molecules → organisms), CSS co-located with its template. The roots are wired by the consumer (`tjakoen.github.io/src/config.ts`; in this monorepo the components live in `grain/components` + `tjakoen.github.io/components`).
 - **Flat-file pages**: `<pages-root>/about.html` → `/about` (here: `tjakoen.github.io/pages`); folders only group subpages. URL mirrors the tree. Minimal JS sits in a `<script>` after the UI.
 - **Pages compose components**: rendered through the engine (`renderPage`), so they use atomic tags. Raw HTML belongs inside a component's own `.html`, never in a page.
 - **Sitemap + SEO**: `/catalog` sidebar lists Pages (site map) + Components; the same page list feeds `/sitemap.xml` and `/robots.txt`. Add a page → it appears in all three.
