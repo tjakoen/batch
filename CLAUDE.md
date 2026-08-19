@@ -78,3 +78,12 @@ changes) + a memory if a decision was made.
 - Commit/push only when asked; branch off `main` if you must. No AI attribution trailers on commits.
 - Voice for prose in the owner's name: <https://tjakoen.github.io/standards/voice> (no backticks in prose).
   README badges/footer: <https://tjakoen.github.io/standards/readme-standard>.
+
+## Evidence: where a run lands its findings (LOOP section 4a)
+
+A run closes with a report in `artifacts/runs/`, one file per run, `YYYY-MM-DD-slug.md`. Gate output
+pasted verbatim rather than summarized, what was **not** done named, and what needs human eyes named
+separately. The README in that directory carries the frontmatter shape and explains why the directory
+came before the checks did. A claim of "verified" with no report attached is treated as unverified.
+
+Plans live in `plans/`, one file per plan, claimed before the editing starts rather than after.
