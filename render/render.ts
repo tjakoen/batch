@@ -11,6 +11,62 @@ export interface RenderConfig {
   // compiled consumer feeds in components it embedded at build time.
   templates?: Record<string, string>;
   missing: MissingMode;
+  // Drop HTML comments from template source as it loads. Off by default, so upgrading
+  // moves nobody's output.
+  //
+  // For a consumer that comments its components as documentation — the house style in at
+  // least one — the commentary is most of what it serves: measured at 65% of every HTML
+  // document on one app, and still 59% of the compressed bytes after gzip had done its
+  // work. Prose is the most compressible thing in a file and it still costs more than the
+  // markup around it.
+  //
+  // Strips at load rather than on the way out, and that is the whole reason this belongs
+  // here rather than in a consumer's response filter: a finished page holds content as
+  // well as templates, and content can legitimately contain a comment (markdown renders
+  // one through). Only this layer can tell a template's commentary from a document's own.
+  stripComments?: boolean;
+}
+
+/**
+ * Every `<script>` or `<style>` element, body and all.
+ *
+ * These are HTML's raw-text elements: their content is not markup, so `<!--` inside one is not a
+ * comment and has to survive verbatim. A legacy `<!--` script wrapper, or any JavaScript that
+ * happens to contain the sequence, is corrupted by a comment regex that does not know the
+ * difference.
+ *
+ * The closing tag is a backreference (`<\/\1`), so a `<style>` cannot be closed by a `</script>`.
+ */
+const RAW_TEXT_ELEMENT = /<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi;
+
+/**
+ * Non-greedy on purpose: an HTML comment ends at the FIRST `-->`, so `<!-- a --> b <!-- c -->` is
+ * two comments with ` b ` surviving between them rather than one comment swallowing it.
+ */
+const HTML_COMMENT = /<!--[\s\S]*?-->/g;
+
+/**
+ * Template source with its HTML comments removed and its raw-text elements untouched.
+ *
+ * Exported for its own test, and because a consumer that builds the `templates` record by hand
+ * wants the same treatment without reimplementing the raw-text carve-out.
+ *
+ * **Whitespace is left exactly as it was.** Removing a comment leaves the newline it sat on. That is
+ * deliberate rather than lazy: whitespace between inline elements is significant in HTML, so
+ * collapsing it would change how a page renders in order to save bytes gzip reclaims anyway.
+ *
+ * Conditional comments (`<!--[if IE]>`) go with everything else. They are markup for a browser that
+ * no longer exists, and a consumer who needs one leaves the option off.
+ */
+export function stripHtmlComments(html: string): string {
+  let out = "";
+  let cursor = 0;
+  for (const match of html.matchAll(RAW_TEXT_ELEMENT)) {
+    out += html.slice(cursor, match.index).replace(HTML_COMMENT, "");
+    out += match[0];   // raw text, verbatim
+    cursor = match.index + match[0].length;
+  }
+  return out + html.slice(cursor).replace(HTML_COMMENT, "");
 }
 
 interface Resolved { found: boolean; value: unknown; }
@@ -86,7 +142,14 @@ export function createRenderer(config: RenderConfig) {
     if (hit) return hit;
     const entry = registry.get(name);
     if (!entry) throw new Error(`Component not found: <${name}>`);
-    const html = entry.source !== undefined ? entry.source : await Bun.file(entry.path!).text();   // platform seam
+    const raw = entry.source !== undefined ? entry.source : await Bun.file(entry.path!).text();   // platform seam
+    // One place, because both source paths meet here and the result is cached: a strip costs one
+    // pass per component per process rather than one per request.
+    const html = config.stripComments === true ? stripHtmlComments(raw) : raw;
+    // Extracted from the STRIPPED source, and the ordering is a deliberate behavior change rather
+    // than an accident of where the line sits. A `data-bind-*` attribute mentioned only inside a
+    // comment used to land here and become a live binding the template does not actually have.
+    // With comments gone first, a commented-out binding is commented out.
     const bindAttrs = [...new Set([...html.matchAll(/data-bind-([\w-]+)=/g)].map(m => m[1]))];
     const tpl = { html, bindAttrs };
     cache.set(name, tpl);
