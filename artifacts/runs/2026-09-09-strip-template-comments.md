@@ -19,7 +19,7 @@ gates:
   - "bunx tsc --noEmit | clean, no output"
   - "bun test | 60 pass, 0 fail, 135 expect() calls, 7 files"
   - "bunx oxlint | 6 warnings, 0 errors — all six pre-date this change, confirmed by stashing it and re-running"
-diffstat: 2 commits, 214 insertions, 3 deletions
+diffstat: 1 commit (913aa3e), 335 insertions, 3 deletions. The first version of this line said two commits and 214 insertions, written before the commit existed; the report is inside that commit, so the number describes it from within.
 unpushed: "0 | pushed to main, which is what publishes it"
 doctor: not run — no native bun on this machine, and the doctor is not containerised here
 verifiedBy: nobody yet
