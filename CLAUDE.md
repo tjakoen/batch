@@ -87,3 +87,21 @@ separately. The README in that directory carries the frontmatter shape and expla
 came before the checks did. A claim of "verified" with no report attached is treated as unverified.
 
 Plans live in `plans/`, one file per plan, claimed before the editing starts rather than after.
+
+## Running the gates
+
+The gates run in a container rather than against whatever is installed on the host, from the
+BREAD workspace repo that sits one directory up and holds the compose file:
+
+```sh
+MSYS_NO_PATHCONV=1 docker compose --profile gates run --rm gates-batch
+```
+
+It installs from the frozen lockfile, then runs the typecheck, the tests and the linter. The
+baseline is 60 pass, 0 fail; anything less is a real regression rather than a local
+quirk.
+The reason it is not a host run belongs to that workspace README rather than here, so it has
+one home: a Windows host without Developer Mode cannot create the symlink these fixtures
+build, and a host run therefore reports failures that do not exist. The `MSYS_NO_PATHCONV=1`
+prefix is not optional from Git Bash, which otherwise rewrites a container path into a
+Windows one and kills the run before it starts.
