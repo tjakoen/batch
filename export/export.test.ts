@@ -41,6 +41,29 @@ afterAll(() => server?.stop(true));
 
 const exists = async (p: string) => { try { await stat(p); return true; } catch { return false; } };
 
+describe("asset failures remain visible in the report", () => {
+  test("a missing configured directory warns even without a logger and other mounts still copy", async () => {
+    const missing = join(assetsSrc, "missing");
+    const report = await exportSite({ baseURL, distDir: join(dist, "missing-assets"), pages: [],
+      assets: [{ prefix: "/missing", dir: missing }, { prefix: "/styles", dir: assetsSrc }] });
+    expect(report.warnings.some((w) => w.includes(missing) && w.includes("ENOENT"))).toBe(true);
+    expect(report.assets.find((a) => a.prefix === "/styles")?.files).toBe(2);
+  });
+
+  test("a file configured as a directory reports the actual filesystem error", async () => {
+    const invalid = join(assetsSrc, "theme.css");
+    const report = await exportSite({ baseURL, distDir: join(dist, "invalid-assets"), pages: [],
+      assets: [{ prefix: "/styles", dir: invalid }] });
+    expect(report.warnings.some((w) => w.includes(invalid) && w.includes("ENOTDIR"))).toBe(true);
+  });
+
+  test("omitting optional assets produces no asset warnings", async () => {
+    const report = await exportSite({ baseURL, distDir: join(dist, "no-assets"), pages: [] });
+    expect(report.warnings).toEqual([]);
+    expect(report.assets).toEqual([]);
+  });
+});
+
 describe("exportSite — root host (no base path)", () => {
   test("writes pretty page dirs, data routes, and copied assets", async () => {
     const out = join(dist, "root");

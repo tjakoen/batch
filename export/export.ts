@@ -72,13 +72,13 @@ async function writeInto(distDir: string, rel: string, body: string): Promise<nu
 
 /** Recursively copy an asset dir into dist/<prefix>/, skipping test files. Text files are rewritten
  *  for the base path (CSS url(), JS import/fetch specifiers); binaries are copied verbatim. */
-async function copyAssetDir(srcDir: string, destDir: string, bp: string, log: (m: string) => void): Promise<number> {
+async function copyAssetDir(srcDir: string, destDir: string, bp: string, warn: (m: string) => void): Promise<number> {
   const abs = resolve(srcDir);
   let count = 0;
   async function walk(dir: string, out: string): Promise<void> {
     let entries;
     try { entries = await readdir(dir, { withFileTypes: true }); }
-    catch { log(`  ! asset dir not found: ${dir}`); return; }
+    catch (error) { warn(`asset directory ${dir} could not be read: ${String(error)}; the export is incomplete.`); return; }
     for (const e of entries) {
       if (isTest(e.name)) continue;                       // never ship *.test.* to a public site
       const from = join(dir, e.name), to = join(out, e.name);
@@ -175,7 +175,7 @@ export async function exportSite(cfg: ExportConfig): Promise<ExportReport> {
   // 3. Static assets copied verbatim under their prefix.
   const assets: ExportReport["assets"] = [];
   for (const { prefix, dir } of cfg.assets ?? []) {
-    const files = await copyAssetDir(dir, join(dist, prefix.replace(/^\/+/, "")), bp, log);
+    const files = await copyAssetDir(dir, join(dist, prefix.replace(/^\/+/, "")), bp, (warning) => warnings.push(warning));
     assets.push({ prefix, files });
     log(`  ⧉ ${prefix}  (${files} file${files === 1 ? "" : "s"})`);
   }
